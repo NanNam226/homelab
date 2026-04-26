@@ -49,7 +49,7 @@ services:
     labels:
       - sablier.enable=true
       - sablier.group=listmonk
-      - homepage.group=Communication
+      - homepage.group=Admin Tools
       - homepage.name=Listmonk
       - homepage.icon=listmonk.png
       - homepage.href=https://listmonk.${DOMAIN:-traefik.me}
