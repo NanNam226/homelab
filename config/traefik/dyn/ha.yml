@@ -1,0 +1,13 @@
+---
+http:
+  routers:
+    ha:
+      rule: Host(`ha.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: ha
+      middlewares: [startup-retry@file]
+  services:
+    ha:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:8123/

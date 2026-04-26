@@ -20,10 +20,6 @@ services:
       - HA_CORS_ORIGIN=https://ha.${DOMAIN:-traefik.me}
     cap_add: [NET_ADMIN, NET_RAW]
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.ha.rule=Host(`ha.${DOMAIN:-traefik.me}`)
-      - traefik.http.routers.ha.entrypoints=websecure
-      - traefik.http.services.ha.loadbalancer.server.port=8123
       - homepage.group=Smart Home
       - homepage.name=Home Assistant
       - homepage.icon=home-assistant.png

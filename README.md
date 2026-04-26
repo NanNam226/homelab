@@ -149,6 +149,7 @@ These are the routes that currently use explicit **Traefik** file-provider confi
 - **BentoPDF**
 - **CloudBeaver**
 - **Homepage**
+- **Home Assistant**
 - **Immich Power Tools**
 - **IT Tools**
 - **Jellyfin**
@@ -168,7 +169,6 @@ These are currently routed with service labels instead of `config/traefik/dyn/*.
 
 - **AdGuard**
 - **Dockhand**
-- **Home Assistant**
 - **Immich**
 - **Prowlarr**
 - **Radarr**

@@ -153,6 +153,7 @@ That is the simpler option when you do not need a file-provider middleware chain
 - `anythingllm.yml`
 - `bentopdf.yml`
 - `cbeaver.yml`
+- `ha.yml`
 - `home.yml`
 - `immich-power-tools.yml`
 - `ittools.yml`
@@ -173,7 +174,6 @@ That is the simpler option when you do not need a file-provider middleware chain
 - `dockhand` from `services/pods.yml`
 - `immich` from `services/immich.yml`
 - `speedtest-tracker` from `services/speedtest-tracker.yml`
-- `ha` from `home-assistant/docker-compose.yml`
 - `jellyfin`, `torrent`, `sonarr`, `radarr`, `prowlarr` from `services/media.yml`
 
 ---
@@ -265,7 +265,7 @@ home-assistant/
 └── configuration.yaml
 ```
 
-The service joins `traefik_public` and is routed by Docker labels, not a file-provider route.
+The service runs in `network_mode: host` for LAN discovery, and **Traefik** reaches it through `config/traefik/dyn/ha.yml` at `http://host.docker.internal:8123/`.
 
 ---
 

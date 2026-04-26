@@ -154,7 +154,7 @@ Current caveat:
 
 | Service | Access | Profile(s) | Routing source | Sleep | Notes |
 |---|---|---|---|---|---|
-| **ha** | `https://ha.${DOMAIN}` | `apps`, `all`, `service` | Docker labels | No | files live under `home-assistant/` |
+| **ha** | `https://ha.${DOMAIN}` | `apps`, `all`, `service` | `config/traefik/dyn/ha.yml` | No | host-networked; files live under `home-assistant/` |
 
 Narrow start command:
 

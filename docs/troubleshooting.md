@@ -166,21 +166,29 @@ If this is production and you still get a bad cert, check:
 
 ---
 
-## Home Assistant Cannot Reach The Shared Network
+## Home Assistant Hangs Or Shows "Retrying"
 
-Bring up the foundation first so `traefik_public` exists, then start `ha`.
+In the current repo, **Home Assistant** runs in `network_mode: host`. That means **Traefik** must reach it through the file provider at `http://host.docker.internal:8123/`, not through `traefik_public` Docker networking.
 
-```bash title="Repair Home Assistant startup ordering"
-# 1. Let the main stack create traefik_public
+```bash title="Check the Home Assistant route path"
+# 1. Bring up Traefik and Home Assistant
 $ docker compose --profile infra up -d
-[+] Running ...
- ✔ Container homelab-traefik-1  Started
-
-# 2. Start Home Assistant with its narrow profile
 $ docker compose --profile service up -d ha
-[+] Running 1/1
- ✔ Container homelab-ha-1  Started
+
+# 2. Verify the dynamic route file exists
+$ ls config/traefik/dyn/ha.yml
+
+# 3. Check that Traefik can serve the HA manifest through HTTPS
+$ curl -k https://ha.${DOMAIN}/manifest.json
 ```
+
+If step 3 fails, compare these pieces:
+
+- `network_mode: host` in `home-assistant/docker-compose.yml`
+- `config/traefik/dyn/ha.yml`
+- `extra_hosts: [host.docker.internal:host-gateway]` on `traefik`
+
+If the browser loads the shell but then falls back to "Retrying", assume the reverse-proxy path is still wrong before you blame Home Assistant itself.
 
 ---
 

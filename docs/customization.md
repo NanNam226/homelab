@@ -206,22 +206,44 @@ If they do not match, the route will not wake correctly.
 
 ## Pattern B: Always-On Service With Direct Labels
 
-Copy this when you want the same style as **Home Assistant** or **Immich**.
+Copy this when you want the same style as **Immich**.
 
-```yaml title="home-assistant/docker-compose.yml"
+```yaml title="services/immich.yml"
 services:
-  ha:
-    profiles: [apps, all, service]
-    image: homeassistant/home-assistant:2026.4.1
-    networks: [traefik_public]
+  immich-server:
+    networks: [traefik_public, immich]
     labels:
       - traefik.enable=true
-      - traefik.http.routers.ha.rule=Host(`ha.${DOMAIN:-traefik.me}`)
-      - traefik.http.routers.ha.entrypoints=websecure
-      - traefik.http.services.ha.loadbalancer.server.port=8123
+      - traefik.docker.network=traefik_public
+      - traefik.http.routers.immich.rule=Host(`photos.${DOMAIN:-traefik.me}`)
+      - traefik.http.routers.immich.entrypoints=websecure
+      - traefik.http.services.immich.loadbalancer.server.port=2283
 ```
 
-Use this pattern when you do not need **Sablier** and do not want a file-provider route.
+Use this pattern when the container joins `traefik_public`, you do not need **Sablier**, and you do not want a file-provider route.
+
+---
+
+## Pattern C: Host-Networked Service With File-Provider Route
+
+Copy this when the app needs `network_mode: host`, like **Home Assistant** or **NetAlertX**.
+
+```yaml title="config/traefik/dyn/ha.yml"
+http:
+  routers:
+    ha:
+      rule: Host(`ha.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: ha
+      middlewares: [startup-retry@file]
+  services:
+    ha:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:8123/
+```
+
+Use this pattern when **Traefik** cannot reach the app over `traefik_public` because the container shares the host network namespace.
 
 ---
 
