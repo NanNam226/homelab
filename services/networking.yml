@@ -82,7 +82,7 @@ services:
     labels:
       - sablier.enable=true
       - sablier.group=default
-      - homepage.group=Developer
+      - homepage.group=Admin Tools
       - homepage.name=Whoami
       - homepage.icon=whoami.png
       - homepage.href=https://whoami.${DOMAIN:-traefik.me}
@@ -142,6 +142,9 @@ services:
       - PORT=20211
       - TZ=${TZ:-Europe/Copenhagen}
       - NETALERTX_SCAN_SUBNETS=${NETALERTX_SCAN_SUBNETS:-192.168.1.0/24}
+    sysctls:
+      net.ipv4.conf.all.arp_ignore: 1
+      net.ipv4.conf.all.arp_announce: 2
     cap_drop: [ALL]
     cap_add:
       - CHOWN

@@ -32,7 +32,7 @@ services:
     labels:
       - sablier.enable=true
       - sablier.group=cbeaver
-      - homepage.group=Storage & Data
+      - homepage.group=Admin Tools
       - homepage.name=CloudBeaver
       - homepage.icon=cloudbeaver.png
       - homepage.href=https://cbeaver.${DOMAIN:-traefik.me}

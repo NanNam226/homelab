@@ -18,7 +18,7 @@ services:
     networks: [traefik_public]
     security_opt: [no-new-privileges:true]
     labels:
-      - homepage.group=Storage & Data
+      - homepage.group=Admin Tools
       - homepage.name=RustFS
       - homepage.icon=rustfs.png
       - homepage.href=https://rustfs.${DOMAIN:-traefik.me}

@@ -88,9 +88,9 @@ services:
       - sablier.group=seerr
       - homepage.group=Media & Files
       - homepage.name=Seerr
-      - homepage.icon=jellyseerr.png
+      - Homepage.icon=jellyseerr.png
       - homepage.href=https://requests.${DOMAIN:-traefik.me}
-      - homepage.description=Request movies and shows on demand
+      - homepage.description=Find and request movies and shows on demand
     healthcheck:
       test:
         - CMD-SHELL
@@ -181,7 +181,7 @@ services:
           cpus: '0.25'
           memory: 256M
     labels:
-      - homepage.group=Media & Files
+      - homepage.group=Admin Tools
       - homepage.name=Radarr
       - homepage.icon=radarr.png
       - homepage.href=https://radarr.${DOMAIN:-traefik.me}
