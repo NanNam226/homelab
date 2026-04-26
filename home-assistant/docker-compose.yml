@@ -23,7 +23,6 @@ services:
       - traefik.enable=true
       - traefik.http.routers.ha.rule=Host(`ha.${DOMAIN:-traefik.me}`)
       - traefik.http.routers.ha.entrypoints=websecure
-      - traefik.http.routers.ha.middlewares=netbird-users-only@file
       - traefik.http.services.ha.loadbalancer.server.port=8123
       - homepage.group=Smart Home
       - homepage.name=Home Assistant
@@ -33,10 +32,9 @@ services:
     healthcheck:
       test:
         - CMD
-        - python3
+        - sh
         - -c
-        - import sys, urllib.request; r = urllib.request.urlopen('http://127.0.0.1:8123/manifest.json',
-          timeout=5); sys.exit(0 if r.status == 200 else 1)
+        - curl -f -s --max-time 5 http://127.0.0.1:8123/manifest.json
       interval: 30s
       timeout: 5s
       retries: 10
