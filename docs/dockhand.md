@@ -71,6 +71,7 @@ SPEEDTEST_APP_KEY=...
 Optional values for current features:
 
 ```text title="Optional variables"
+SPEEDTEST_API_TOKEN=...
 KARAKEEP_OPENAI_API_KEY=...
 KARAKEEP_OAUTH_WELLKNOWN_URL=...
 KARAKEEP_OAUTH_CLIENT_ID=...
@@ -86,14 +87,14 @@ AI_MODEL=gpt-4o-mini
 
 ### Current media caveat
 
-`setup-dev.sh` requires these for `--profile apps` and `--profile all`:
+The active media stack requires these for `--profile apps` and `--profile all`:
 
 ```text
 OPENVPN_USER=...
 OPENVPN_PASSWORD=...
 ```
 
-That matches the active media stack: `gluetun` uses ProtonVPN OpenVPN credentials for `torrent`, `sonarr`, and `radarr`.
+`setup-dev.sh` writes dummy local values for config rendering, but real Gluetun use still needs real ProtonVPN OpenVPN credentials for `torrent`, `sonarr`, and `radarr`.
 
 ---
 
