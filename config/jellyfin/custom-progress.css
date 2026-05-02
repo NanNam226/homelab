@@ -1,0 +1,6 @@
+/* Jellyfin playback OSD: make buffered/transcoded range easier to distinguish. */
+.sliderContainer .mdl-slider-background-upper,
+.osdPositionSlider ~ .mdl-slider-background-flex-container .mdl-slider-background-upper,
+.mdl-slider-background-upper {
+    background: rgba(255, 193, 7, 0.72) !important;
+}
