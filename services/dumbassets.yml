@@ -1,0 +1,53 @@
+---
+services:
+  dumbassets:
+    profiles: [apps, all]
+    image: dumbwareio/dumbassets:1.0.11
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DEBUG=false
+      - PORT=3000
+      - TZ=${TZ:-Europe/Copenhagen}
+      - SITE_TITLE=${DUMBASSETS_SITE_TITLE:-DumbAssets}
+      - BASE_URL=https://assets.${DOMAIN:-traefik.me}
+      - ALLOWED_ORIGINS=https://assets.${DOMAIN:-traefik.me}
+      - DUMBASSETS_PIN=${DUMBASSETS_PIN:?Set DUMBASSETS_PIN in .env, direnv, or Dockhand}
+      - SESSION_SECRET=${DUMBASSETS_SESSION_SECRET:?Generate a key using `openssl
+        rand -base64 32 2>/dev/null`}
+      - CURRENCY_CODE=${DUMBASSETS_CURRENCY_CODE:-DKK}
+      - CURRENCY_LOCALE=${DUMBASSETS_CURRENCY_LOCALE:-da-DK}
+      - APPRISE_URL=${DUMBASSETS_APPRISE_URL:-}
+    volumes: [dumbassets_data:/app/data]
+    networks: [traefik_public]
+    labels:
+      - sablier.enable=true
+      - sablier.group=dumbassets
+      - homepage.group=Utilities
+      - homepage.name=DumbAssets
+      - homepage.icon=mdi-package-variant-closed
+      - homepage.href=https://assets.${DOMAIN:-traefik.me}
+      - homepage.description=Track physical assets, warranties, and maintenance
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+networks:
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    attachable: true
+volumes:
+  dumbassets_data:

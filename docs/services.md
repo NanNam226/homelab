@@ -66,6 +66,7 @@ $ curl -k https://speed.traefik.me
 | **Omni Tools** | `https://omni.${DOMAIN}` | `apps`, `all` | `config/traefik/dyn/omni-tools.yml` | Yes, `30m` | general utilities |
 | **VERT** | `https://vert.${DOMAIN}` | `apps`, `all` | `config/traefik/dyn/vert.yml` | Yes, `30m` | browser-side file conversion |
 | **Speedtest Tracker** | `https://speed.${DOMAIN}` | `apps`, `all` | `config/traefik/dyn/speedtest-tracker.yml` | Yes, `15m` | stores SQLite data under `/config`; `speedtest-trigger` wakes it hourly through the API |
+| **DumbAssets** | `https://assets.${DOMAIN}` | `apps`, `all` | `config/traefik/dyn/dumbassets.yml` | Yes, `30m` | tracks assets, warranties, receipts, manuals, and maintenance |
 
 ---
 
@@ -189,12 +190,14 @@ These are the variables that matter for the active stack.
 | `SPEEDTEST_API_TOKEN` | **Speedtest Trigger** sidecar; create it in Speedtest Tracker with `Read Results` and `Run Speedtest` abilities |
 | `OPENVPN_USER` | **Gluetun** ProtonVPN OpenVPN username |
 | `OPENVPN_PASSWORD` | **Gluetun** ProtonVPN OpenVPN password |
+| `DUMBASSETS_PIN` | **DumbAssets** |
+| `DUMBASSETS_SESSION_SECRET` | **DumbAssets** |
 
 Bootstrap behavior:
 
 - `.env.example` already provides local RustFS defaults.
-- `setup-dev.sh` auto-generates `IMMICH_DB_PASSWORD`, `LISTMONK_db__password`, `PAPERLESS_DBPASS`, `PAPERLESS_SECRET_KEY`, `NEXTAUTH_SECRET`, `MEILI_MASTER_KEY`, and `SPEEDTEST_APP_KEY` when they are missing.
-- `setup-dev.sh` writes dummy `OPENVPN_USER` and `OPENVPN_PASSWORD` values for local config rendering. Real Gluetun use still needs real VPN credentials.
+- `setup-dev.sh` auto-generates `IMMICH_DB_PASSWORD`, `LISTMONK_db__password`, `PAPERLESS_DBPASS`, `PAPERLESS_SECRET_KEY`, `NEXTAUTH_SECRET`, `MEILI_MASTER_KEY`, `SPEEDTEST_APP_KEY`, and `DUMBASSETS_SESSION_SECRET` when they are missing.
+- `setup-dev.sh` writes dummy `OPENVPN_USER`, `OPENVPN_PASSWORD`, and `DUMBASSETS_PIN` values for local config rendering. Real Gluetun use still needs real VPN credentials.
 - In CI only, `setup-dev.sh` also writes dummy `ACME_EMAIL`, `CF_DNS_API_TOKEN`, and `PAPERLESS_ADMIN_PASSWORD` values so the workflow can render the stack without secrets.
 - For local full-stack runs, set `ACME_EMAIL`, `CF_DNS_API_TOKEN`, and `PAPERLESS_ADMIN_PASSWORD` yourself unless you already provide them through the environment.
 

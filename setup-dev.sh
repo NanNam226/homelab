@@ -190,7 +190,7 @@ Options:
 This script:
 - Optionally copies .env.example to .env if missing
 - Generates random app keys in .env when safe for local development
-- Sets local dummy OpenVPN credentials when missing so compose config can render
+- Sets local dummy OpenVPN and DumbAssets values when missing so compose config can render
 - Verifies required env_file references from included compose files
 - Reports required secrets that must be set manually
 - Leaves optional service env overrides optional
@@ -215,7 +215,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 log_info "Setting up the homelab development environment..."
-log_info "setup-dev.sh generates app keys, sets local OpenVPN placeholders, and leaves optional service env overrides optional"
+log_info "setup-dev.sh generates app keys, sets local OpenVPN and DumbAssets placeholders, and leaves optional service env overrides optional"
 
 ENV_FILES_DIR="services"
 
@@ -257,6 +257,7 @@ fi
 dev_placeholder_failures=0
 ensure_dev_placeholder OPENVPN_USER local-openvpn-user || dev_placeholder_failures=1
 ensure_dev_placeholder OPENVPN_PASSWORD local-openvpn-password || dev_placeholder_failures=1
+ensure_dev_placeholder DUMBASSETS_PIN 1234 || dev_placeholder_failures=1
 
 if (( dev_placeholder_failures > 0 )); then
     log_error "Failed to set one or more development placeholders"
@@ -264,7 +265,7 @@ if (( dev_placeholder_failures > 0 )); then
 fi
 
 generated_key_failures=0
-for generated_key in PAPERLESS_DBPASS IMMICH_DB_PASSWORD LISTMONK_db__password PAPERLESS_SECRET_KEY NEXTAUTH_SECRET MEILI_MASTER_KEY SPEEDTEST_APP_KEY; do
+for generated_key in PAPERLESS_DBPASS IMMICH_DB_PASSWORD LISTMONK_db__password PAPERLESS_SECRET_KEY NEXTAUTH_SECRET MEILI_MASTER_KEY SPEEDTEST_APP_KEY DUMBASSETS_SESSION_SECRET; do
     if ! ensure_generated_dev_key "$generated_key"; then
         generated_key_failures=1
     fi
@@ -285,6 +286,8 @@ required_vars=(
     OPENVPN_USER
     OPENVPN_PASSWORD
     SPEEDTEST_APP_KEY
+    DUMBASSETS_PIN
+    DUMBASSETS_SESSION_SECRET
 )
 
 missing_required_vars=()
