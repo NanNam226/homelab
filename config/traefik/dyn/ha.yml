@@ -5,9 +5,14 @@ http:
       rule: Host(`ha.{{ env "DOMAIN" }}`)
       entrypoints: [websecure]
       service: ha
-      middlewares: [startup-retry@file]
   services:
     ha:
       loadBalancer:
+        serversTransport: ha-timeouts
         servers:
           - url: http://host.docker.internal:8123/
+  serversTransports:
+    ha-timeouts:
+      forwardingTimeouts:
+        dialTimeout: 5s
+        responseHeaderTimeout: 15s

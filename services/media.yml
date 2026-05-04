@@ -82,7 +82,7 @@ services:
       - sablier.group=seerr
       - homepage.group=Media & Files
       - homepage.name=Seerr
-      - Homepage.icon=jellyseerr.png
+      - Homepage.icon=overseerr.png
       - homepage.href=https://requests.${DOMAIN:-traefik.me}
       - homepage.description=Find and request movies and shows on demand
     healthcheck:

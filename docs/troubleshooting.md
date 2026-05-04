@@ -191,11 +191,22 @@ $ ls config/traefik/dyn/ha.yml
 $ curl -k https://ha.${DOMAIN}/manifest.json
 ```
 
-If step 3 fails, compare these pieces:
+If step 3 hangs instead of failing quickly, check whether the Home Assistant
+backend is reachable from the **Traefik** container:
+
+```bash title="Check Traefik-to-Home Assistant reachability"
+$ docker compose exec traefik wget -O- http://host.docker.internal:8123/manifest.json
+```
+
+If that fails, compare these pieces:
 
 - `network_mode: host` in `home-assistant/docker-compose.yml`
 - `config/traefik/dyn/ha.yml`
 - `extra_hosts: [host.docker.internal:host-gateway]` on `traefik`
+
+The HA router intentionally does **not** use the shared `startup-retry@file`
+middleware. Home Assistant is not Sablier-managed, and retrying a dead host
+backend hides the real failure behind a long browser "Retrying" loop.
 
 If the browser loads the shell but then falls back to "Retrying", assume the reverse-proxy path is still wrong before you blame Home Assistant itself.
 
