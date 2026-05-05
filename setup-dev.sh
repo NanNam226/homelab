@@ -98,6 +98,26 @@ generate_base64_key() {
     head -c 32 /dev/urandom | base64 | tr -d '\n'
 }
 
+detect_primary_ipv4() {
+    local route_output token previous=""
+
+    if ! command -v ip >/dev/null 2>&1; then
+        return 1
+    fi
+
+    route_output=$(ip -4 route get 1.1.1.1 2>/dev/null || true)
+    for token in $route_output; do
+        if [[ "$previous" == "src" && "$token" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+            printf '%s\n' "$token"
+            return 0
+        fi
+
+        previous="$token"
+    done
+
+    return 1
+}
+
 set_env_value() {
     local var_name="$1"
     local var_value="$2"
@@ -170,6 +190,28 @@ ensure_dev_placeholder() {
     log_info "Set development placeholder: $var_name"
 }
 
+ensure_homelab_host_ip() {
+    local detected_ip
+
+    if has_config_value HOMELAB_HOST_IP; then
+        return 0
+    fi
+
+    if [[ ! -f ".env" ]]; then
+        log_warn ".env is missing, so HOMELAB_HOST_IP was not set for local validation"
+        return 1
+    fi
+
+    detected_ip=$(detect_primary_ipv4 || true)
+    if [[ -z "$detected_ip" ]]; then
+        log_warn "Could not detect HOMELAB_HOST_IP; set it to the Docker host IP reachable from Traefik"
+        return 1
+    fi
+
+    set_env_value HOMELAB_HOST_IP "$detected_ip" ".env"
+    log_info "Set HOMELAB_HOST_IP=$detected_ip"
+}
+
 show_generation_hints() {
     log_info "Generator hints:"
     if command -v mkpasswd >/dev/null 2>&1; then
@@ -191,6 +233,7 @@ This script:
 - Optionally copies .env.example to .env if missing
 - Generates random app keys in .env when safe for local development
 - Sets local dummy OpenVPN and DumbAssets values when missing so compose config can render
+- Sets HOMELAB_HOST_IP to the primary host IPv4 when missing
 - Verifies required env_file references from included compose files
 - Reports required secrets that must be set manually
 - Leaves optional service env overrides optional
@@ -255,6 +298,7 @@ if (( ci_placeholder_failures > 0 )); then
 fi
 
 dev_placeholder_failures=0
+ensure_homelab_host_ip || dev_placeholder_failures=1
 ensure_dev_placeholder OPENVPN_USER local-openvpn-user || dev_placeholder_failures=1
 ensure_dev_placeholder OPENVPN_PASSWORD local-openvpn-password || dev_placeholder_failures=1
 ensure_dev_placeholder DUMBASSETS_PIN 1234 || dev_placeholder_failures=1

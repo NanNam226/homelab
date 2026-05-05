@@ -17,7 +17,10 @@ services:
       - ../config/traefik/dyn:/etc/traefik/dyn:ro
       - ../config/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
     networks: [traefik_public]
-    extra_hosts: [host.docker.internal:host-gateway]
+    extra_hosts:
+      - host.docker.internal:host-gateway
+      - homelab:${HOMELAB_HOST_IP:?Run setup-dev.sh or set HOMELAB_HOST_IP to the
+        Docker host IP reachable from Traefik}
     labels:
       - traefik.enable=true
       # Traefik dashboard
