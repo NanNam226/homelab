@@ -13,6 +13,7 @@ services:
       - TZ=${TZ:-Europe/Copenhagen}
       - VPN_SERVICE_PROVIDER=protonvpn
       - VPN_TYPE=openvpn
+      - FREE_ONLY=${VPN_FREE_ONLY:-on}
       - OPENVPN_USER=${OPENVPN_USER:?Set OPENVPN_USER in .env, direnv, or Dockhand}
       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD:?Set OPENVPN_PASSWORD in .env, direnv,
         or Dockhand}
