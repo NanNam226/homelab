@@ -153,7 +153,7 @@ services:
     labels:
       - homepage.group=Admin Tools
       - homepage.name=Sonarr
-      - homepage.icon=sonarr.png
+      - homepage.icon=sonarr-dark.png
       - homepage.href=https://sonarr.${DOMAIN:-traefik.me}
       - homepage.description=Track, download, and organize TV series automatically
   radarr:
