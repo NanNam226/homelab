@@ -56,8 +56,8 @@ wait_for_health() {
 }
 
 run_once() {
-    local started_runs=''
     local queued_run=''
+    local active_result=0
 
     if [[ -z ${SPEEDTEST_API_TOKEN:-} ]]; then
         log 'SPEEDTEST_API_TOKEN is unset; skipping automated speedtest trigger'
@@ -68,19 +68,16 @@ run_once() {
         return 1
     fi
 
-    if ! started_runs=$(request '/api/v1/results?filter[status]=Started' --header="Authorization: Bearer ${SPEEDTEST_API_TOKEN}" 2>/dev/null); then
-        log 'failed to query in-progress speedtests'
-        return 1
-    fi
+    has_active_speedtest
+    active_result=$?
 
-    if [[ $started_runs != *'"data"'* ]]; then
-        log 'failed to query in-progress speedtests'
-        return 1
-    fi
-
-    if [[ ! $started_runs =~ "data"[[:space:]]*:[[:space:]]*\[\] ]]; then
+    if (( active_result == 0 )); then
         log 'speedtest already queued or running; skipping trigger'
         return 0
+    fi
+
+    if (( active_result != 1 )); then
+        return 1
     fi
 
     if ! queued_run=$(request /api/v1/speedtests/run --header="Authorization: Bearer ${SPEEDTEST_API_TOKEN}" --post-data='' 2>/dev/null); then
@@ -88,12 +85,35 @@ run_once() {
         return 1
     fi
 
-    if printf '%s' "$queued_run" | grep -Eq '"data":[[:space:]]*[{[]'; then
+    if [[ $queued_run == *'"data"'* || $queued_run == *'"message"'* ]]; then
         log 'queued speedtest run'
         return 0
     fi
 
     log 'failed to queue speedtest run'
+    return 1
+}
+
+has_active_speedtest() {
+    local response=''
+    local status=''
+
+    for status in waiting started running checking benchmarking; do
+        if ! response=$(request "/api/v1/results?filter%5Bstatus%5D=${status}" --header="Authorization: Bearer ${SPEEDTEST_API_TOKEN}" 2>/dev/null); then
+            log 'failed to query in-progress speedtests'
+            return 2
+        fi
+
+        if [[ $response != *'"data"'* ]]; then
+            log 'failed to query in-progress speedtests'
+            return 2
+        fi
+
+        if [[ ! $response =~ "data"[[:space:]]*:[[:space:]]*\[\] ]]; then
+            return 0
+        fi
+    done
+
     return 1
 }
 
