@@ -250,8 +250,8 @@ but `config/traefik/dyn/listmonk.yml` does not attach a Sablier middleware. That
 That means:
 
 - `gluetun` is attached to `media` and `traefik_public`
-- `torrent`, `sonarr`, and `radarr` share the `gluetun` network namespace
-- `gluetun` carries `torrent`, `sonarr`, and `radarr` aliases on `media` so existing service names still resolve internally
+- `torrent`, `sonarr`, `radarr`, and `byparr` share the `gluetun` network namespace
+- `gluetun` carries `torrent`, `sonarr`, `radarr`, and `byparr` aliases on `media` so existing service names still resolve internally
 - `prowlarr` remains directly attached to `media` and `traefik_public`
 - `bazarr` remains directly attached to `media` and `traefik_public`
 

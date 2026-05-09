@@ -142,13 +142,15 @@ Required vars:
 | **torrent** | `https://torrent.${DOMAIN}` | `apps`, `all` | Docker labels on `gluetun` | No | qBittorrent service name is `torrent`; shares `gluetun` network namespace |
 | **Sonarr** | `https://sonarr.${DOMAIN}` | `apps`, `all` | Docker labels on `gluetun` | No | shares `gluetun` network namespace |
 | **Radarr** | `https://radarr.${DOMAIN}` | `apps`, `all` | Docker labels on `gluetun` | No | shares `gluetun` network namespace |
+| **Byparr** | internal only, `http://byparr:8191` from `media` | `apps`, `all` | None | No | FlareSolverr-compatible helper; shares `gluetun` network namespace |
 | **Prowlarr** | `https://prowlarr.${DOMAIN}` | no explicit profile | Docker labels | No | starts by default in the main stack because it has no profile |
 | **Bazarr** | `https://bazarr.${DOMAIN}` | `apps`, `all` | Docker labels on `bazarr` | No | subtitle management for the shared media library |
 
 Current caveat:
 
-- `gluetun` now carries the routed network path for `torrent`, `sonarr`, and `radarr`
-- `gluetun` also carries `torrent`, `sonarr`, and `radarr` aliases on `media` to preserve internal service-name reachability
+- `gluetun` now carries the routed network path for `torrent`, `sonarr`, `radarr`, and `byparr`
+- `gluetun` also carries `torrent`, `sonarr`, `radarr`, and `byparr` aliases on `media` to preserve internal service-name reachability
+- configure Prowlarr's FlareSolverr indexer proxy host as `http://byparr:8191`, not `/v1`; Prowlarr appends `/v1`
 - active compose requires `OPENVPN_USER` and `OPENVPN_PASSWORD` for Gluetun; `setup-dev.sh` writes local dummy values so config rendering works
 - replace the dummy OpenVPN values before running VPN-backed downloads for real
 - `VPN_SERVER_COUNTRIES` is optional and defaults to `Netherlands`
