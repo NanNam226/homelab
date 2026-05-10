@@ -58,7 +58,7 @@ services:
     command: tunnel --no-autoupdate run
     restart: unless-stopped
     networks: [listmonk]
-    environment: ['TUNNEL_TOKEN=${CF_TUNNEL_TOKEN}']
+    environment: ['TUNNEL_TOKEN=${CF_TUNNEL_TOKEN:-"CHANGEME!"}']
 volumes:
   listmonk_postgres_data:
 networks:
