@@ -102,7 +102,7 @@ services:
     network_mode: service:gluetun
     depends_on: [gluetun]
     labels:
-      - homepage.group=Admin Tools
+      - homepage.group=Streaming Management
       - homepage.name=QBittorrent
       - homepage.icon=qbittorrent.png
       - homepage.href=https://torrent.${DOMAIN:-traefik.me}
@@ -143,7 +143,7 @@ services:
           cpus: '0.25'
           memory: 256M
     labels:
-      - homepage.group=Admin Tools
+      - homepage.group=Streaming Management
       - homepage.name=Sonarr
       - homepage.icon=sonarr-dark.png
       - homepage.href=https://sonarr.${DOMAIN:-traefik.me}
@@ -168,7 +168,7 @@ services:
           cpus: '0.25'
           memory: 256M
     labels:
-      - homepage.group=Admin Tools
+      - homepage.group=Streaming Management
       - homepage.name=Radarr
       - homepage.icon=radarr.png
       - homepage.href=https://radarr.${DOMAIN:-traefik.me}
@@ -204,7 +204,7 @@ services:
       - traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN:-traefik.me}`)
       - traefik.http.routers.prowlarr.entrypoints=websecure
       - traefik.http.services.prowlarr.loadbalancer.server.port=9696
-      - homepage.group=Admin Tools
+      - homepage.group=Streaming Management
       - homepage.name=Prowlarr
       - homepage.icon=prowlarr.png
       - homepage.href=https://prowlarr.${DOMAIN:-traefik.me}
@@ -225,7 +225,7 @@ services:
       - traefik.http.routers.bazarr.rule=Host(`bazarr.${DOMAIN:-traefik.me}`)
       - traefik.http.routers.bazarr.entrypoints=websecure
       - traefik.http.services.bazarr.loadbalancer.server.port=6767
-      - homepage.group=Admin Tools
+      - homepage.group=Streaming Management
       - homepage.name=Bazarr
       - homepage.icon=bazarr.png
       - homepage.href=https://bazarr.${DOMAIN:-traefik.me}
