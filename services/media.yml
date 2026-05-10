@@ -181,13 +181,23 @@ services:
       - homepage.icon=radarr.png
       - homepage.href=https://radarr.${DOMAIN:-traefik.me}
       - homepage.description=Track, download, and organize movies automatically
+  flaresolverr:
+    # DockerHub mirror flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    network_mode: service:gluetun
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FILE=${LOG_FILE:-none}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+    volumes: [flaresolverr_config:/config]
+    restart: unless-stopped
   byparr:
     profiles: [apps, all]
     image: ghcr.io/thephaseless/byparr:latest
-    init: true
     network_mode: service:gluetun
     depends_on: [gluetun]
-    environment: [HOST=0.0.0.0, PORT=8191, LOG_LEVEL=INFO]
+    environment: [HOST=0.0.0.0, PORT=8192, LOG_LEVEL=INFO]
     restart: unless-stopped
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
@@ -242,3 +252,4 @@ volumes:
   radarr_config:
   prowlarr_config:
   bazarr_config:
+  flaresolverr_config:
