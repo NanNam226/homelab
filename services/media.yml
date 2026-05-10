@@ -35,14 +35,6 @@ services:
       - traefik.http.routers.radarr.service=radarr
       - traefik.http.services.radarr.loadbalancer.server.port=7878
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
   jellyfin:
     profiles: [apps, all]
     image: linuxserver/jellyfin:10.11.8
