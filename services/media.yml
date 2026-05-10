@@ -7,7 +7,7 @@ services:
     devices: [/dev/net/tun:/dev/net/tun]
     networks:
       media:
-        aliases: [torrent, sonarr, radarr, byparr]
+        aliases: [torrent, sonarr, radarr, flaresolverr, byparr]
       traefik_public:
     environment:
       - TZ=${TZ:-Europe/Copenhagen}
@@ -18,7 +18,7 @@ services:
       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD:?Set OPENVPN_PASSWORD in .env, direnv,
         or Dockhand}
       - SERVER_COUNTRIES=${VPN_SERVER_COUNTRIES:-Netherlands}
-      - FIREWALL_INPUT_PORTS=8080,7878,8989,6881,8191
+      - FIREWALL_INPUT_PORTS=8080,7878,8989,6881,8191,8192
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik_public
@@ -182,10 +182,14 @@ services:
       - homepage.href=https://radarr.${DOMAIN:-traefik.me}
       - homepage.description=Track, download, and organize movies automatically
   flaresolverr:
+    profiles: [apps, all]
     # DockerHub mirror flaresolverr/flaresolverr:latest
     image: ghcr.io/flaresolverr/flaresolverr:latest
     network_mode: service:gluetun
+    depends_on: [gluetun]
     environment:
+      - HOST=0.0.0.0
+      - PORT=8191
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - LOG_FILE=${LOG_FILE:-none}
       - LOG_HTML=${LOG_HTML:-false}
