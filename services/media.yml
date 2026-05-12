@@ -235,11 +235,15 @@ services:
     restart: unless-stopped
 networks:
   media:
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
   traefik_public:
     name: traefik_public
     driver: bridge
     attachable: true
     external: true
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
 volumes:
   jellyfin_config:
   jellyfin_cache:
