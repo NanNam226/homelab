@@ -1,3 +1,4 @@
+CONFIG_PATH="$([[ -v DOCKHAND_DATA_DIR && -v DOCKHAND_ENV_NAME && -v DOCKHAND_STACK_NAME ]] && echo "$DOCKHAND_DATA_DIR/$DOCKHAND_ENV_NAME/$DOCKHAND_STACK_NAME/config/" || echo "../config/")"   
 ---
 services:
   traefik:
@@ -14,10 +15,8 @@ services:
     volumes:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${DOCKHAND_DATA_DIR:+${DOCKHAND_DATA_DIR:+${DOCKHAND_ENV_NAME:+${DOCKHAND_DATA_DIR}/${DOCKHAND_ENV_NAME}/${DOCKHAND_STACK_NAME}/config/traefik/dyn}}|../config/traefik/dyn}:/etc/traefik/dyn:ro   
-      - ${DOCKHAND_DATA_DIR:+${DOCKHAND_DATA_DIR:+${DOCKHAND_ENV_NAME:+${DOCKHAND_DATA_DIR}/${DOCKHAND_ENV_NAME}/${DOCKHAND_STACK_NAME}/config/traefik/traefik.yml}}|../config/traefik/traefik.yml}:/etc/traefik/traefik.yml:ro   
-      # - ../config/traefik/dyn:/etc/traefik/dyn:ro
-      # - ../config/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ${CONFIG_PATH}/traefik/dyn:/etc/traefik/dyn:ro
+      - ${CONFIG_PATH}/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
     networks: [traefik_public]
     extra_hosts:
       - host.docker.internal:host-gateway
