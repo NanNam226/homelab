@@ -1,7 +1,7 @@
 ---
 services:
   ittools:
-    profiles: [apps, all]
+    profiles: [apps, utils, all]
     image: corentinth/it-tools:2024.10.22-7ca5933
     networks: [traefik_public]
     labels:

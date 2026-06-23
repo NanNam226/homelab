@@ -1,7 +1,7 @@
 ---
 services:
   omni-tools:
-    profiles: [apps, all]
+    profiles: [apps, utils, all]
     image: iib0011/omni-tools:0.1.0
     restart: unless-stopped
     networks: [traefik_public]
