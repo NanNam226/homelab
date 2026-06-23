@@ -1,0 +1,44 @@
+---
+http:
+  routers:
+    nextcloud:
+      rule: Host(`nextcloud.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: nextcloud
+      middlewares: [sablier-nextcloud@file, startup-retry@file]
+  services:
+    nextcloud:
+      loadBalancer:
+        servers:
+          - url: http://nextcloud-aio-apache:11000
+  middlewares:
+    sablier-nextcloud:
+      plugin:
+        sablier:
+          group: nextcloud
+          dynamic:
+            displayName: NextCloud
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m
+    # nextcloud-secure-headers:
+    #   headers:
+    #     hostsProxyHeaders:
+    #       - "X-Forwarded-Host"
+    #     referrerPolicy: "same-origin"
+    #     customRequestHeaders:
+    #       X-Forwarded-Proto: "https"
+
+    # https-redirect:
+    #   redirectscheme:
+    #     scheme: https 
+
+    # nextcloud-chain:
+    #   chain:
+    #     middlewares:
+    #       # - ... (e.g. rate limiting middleware)
+    #       - https-redirect
+    #       - nextcloud-secure-headers
+    #       - sablier-nextcloud
