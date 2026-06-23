@@ -18,6 +18,10 @@ entryPoints:
         entryPoint:
           to: websecure
           scheme: https
+      encodedCharacters: # For NextCloud - needed according to docs?
+        allowEncodedSlash: true
+        allowEncodedQuestionMark: true
+        allowEncodedPercent: true
   websecure:
     address: :443
     http:
