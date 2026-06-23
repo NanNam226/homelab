@@ -23,6 +23,7 @@ include:
   - services/media.yml  # Jellyfin + media automation stack
   - services/homepage.yml  # Homepage dashboard
   - home-assistant/docker-compose.yml  # Home Assistant smart home stack
+  - services/nextcloud.yml
   - services/openwebui.yml
   - services/kokoro-tts.yml
   - services/libretranslate.yml
