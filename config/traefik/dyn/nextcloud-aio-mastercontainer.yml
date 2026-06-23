@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    nextcloud-aio:
+      rule: Host(`nextcloud-aio.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: nextcloud-aio
+      middlewares: [sablier-nextcloud-aio@file, startup-retry@file]
+  services:
+    nextcloud-aio:
+      loadBalancer:
+        servers:
+          - url: https://nextcloud-aio-mastercontainer:8080
+  middlewares:
+    sablier-nextcloud-aio:
+      plugin:
+        sablier:
+          group: nextcloud-aio
+          dynamic:
+            displayName: nextcloud-aio
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m
