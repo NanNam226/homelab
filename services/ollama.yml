@@ -1,0 +1,44 @@
+---
+services:
+  ollama: 
+    devices: 
+      - /dev/kfd 
+      - /dev/dri 
+    image: ollama/ollama:rocm
+    profiles: [apps, ai, all]
+    volumes: [ollama:/root/.ollama]
+    networks: [traefik_public]
+#     depends_on:
+#       traefik:
+#         condition: service_healthy
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_TELEMETRY=false 
+    #   - TZ=${TZ:-Europe/Copenhagen}
+    tty: true
+    stdin_open: true
+    labels:
+      - sablier.enable=true
+      - sablier.group=ollama
+      - homepage.group=Utilities
+      - homepage.name=Ollama
+      - homepage.icon=ollama.png
+      - homepage.href=https://ollama.${DOMAIN:-traefik.me}
+      - homepage.description=Run local AI
+#     deploy:
+#       resources:
+#         limits:
+#           cpus: '0.5'
+#           memory: 512M
+#         reservations:
+#           cpus: '0.25'
+#           memory: 256M
+    restart: unless-stopped
+networks:
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    attachable: true
+volumes:
+  ollama:

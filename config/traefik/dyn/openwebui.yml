@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    openwebui:
+      rule: Host(`openwebui.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: openwebui
+      middlewares: [sablier-openwebui@file, startup-retry@file]
+  services:
+    openwebui:
+      loadBalancer:
+        servers:
+          - url: http://openwebui:8080/
+  middlewares:
+    sablier-openwebui:
+      plugin:
+        sablier:
+          group: openwebui
+          dynamic:
+            displayName: OpenWebUi
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m

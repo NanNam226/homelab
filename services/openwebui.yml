@@ -1,0 +1,40 @@
+---
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    profiles: [apps, ai, all]
+    networks: ["traefik_public"]
+    volumes: [open-webui:/app/backend/data]
+    # depends_on:
+    #   traefik:
+    #     condition: service_healthy
+    # ports:
+    #   - "3000:8080"
+    environment:
+      # Change this to any secret key to use as your OpenAI compatible API key
+      - KW_SECRET_API_KEY=your-api-key
+#       - TZ=${TZ:-Europe/Copenhagen}
+    labels:
+      - sablier.enable=true
+      - sablier.group=openwebui
+      - homepage.group=Utilities
+      - homepage.name=OpenWebUI
+      - homepage.icon=open-webui.png
+      - homepage.href=https://openwebui.${DOMAIN:-traefik.me}
+      - homepage.description=Chatbot interface
+#     deploy:
+#       resources:
+#         limits:
+#           cpus: '0.5'
+#           memory: 512M
+#         reservations:
+#           cpus: '0.25'
+#           memory: 256M
+    restart: unless-stopped
+networks:
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    attachable: true
+volumes:
+  open-webui:

@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    ollama:
+      rule: Host(`ollama.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: ollama
+      middlewares: [sablier-ollama@file, startup-retry@file]
+  services:
+    ollama:
+      loadBalancer:
+        servers:
+          - url: http://ollama:11434/
+  middlewares:
+    sablier-ollama:
+      plugin:
+        sablier:
+          group: ollama
+          dynamic:
+            displayName: Ollama
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m
