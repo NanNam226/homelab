@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    kokoro:
+      rule: Host(`tts.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: kokoro
+      middlewares: [sablier-kokoro@file, startup-retry@file]
+  services:
+    kokoro:
+      loadBalancer:
+        servers:
+          - url: http://kokoro:3000/
+  middlewares:
+    sablier-kokoro:
+      plugin:
+        sablier:
+          group: kokoro
+          dynamic:
+            displayName: Kokoro-TTS
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m

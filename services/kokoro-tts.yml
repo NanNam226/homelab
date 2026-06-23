@@ -1,0 +1,40 @@
+---
+services:
+  kokoro:
+    image: ghcr.io/eduardolat/kokoro-web:latest
+    profiles: [apps, utils, all]
+    networks: ["traefik_public"]
+#     depends_on:
+#       traefik:
+#         condition: service_healthy
+    ports:
+      - "5501:3000"
+    # environment:
+    #   Change this to any secret key to use as your OpenAI compatible API key
+    #   - KW_SECRET_API_KEY=your-api-key
+      # - TZ=${TZ:-Europe/Copenhagen}
+    volumes: [kokoro-cache:/kokoro/cache]
+    labels:
+      - sablier.enable=true
+      - sablier.group=kokoro
+      - homepage.group=Utilities
+      - homepage.name=Kokoro-TTS
+      - homepage.icon=kokoro-web.png
+      - homepage.href=https://tts.${DOMAIN:-traefik.me}
+      - homepage.description=Read text out loud
+#     deploy:
+#       resources:
+#         limits:
+#           cpus: '0.5'
+#           memory: 512M
+#         reservations:
+#           cpus: '0.25'
+#           memory: 256M
+    restart: unless-stopped
+networks:
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    attachable: true
+volumes:
+  kokoro-cache:
