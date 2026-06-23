@@ -37,3 +37,4 @@ networks:
     name: traefik_public
     driver: bridge
     attachable: true
+    external: true
