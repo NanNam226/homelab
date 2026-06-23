@@ -24,6 +24,8 @@ include:
   - services/homepage.yml  # Homepage dashboard
   - home-assistant/docker-compose.yml  # Home Assistant smart home stack
   - services/openwebui.yml
+  - services/kokoro-tts.yml
+  - services/libretranslate.yml
   - services/ollama.yml
 # Log rotation configuration to prevent disk fill
 # Reference in services with: <<: *x-logging
