@@ -1,0 +1,47 @@
+# ---
+services:
+  libretranslate:
+    image: libretranslate/libretranslate:v1.6.0
+    profiles: [apps, utils, all]
+    networks: ["traefik_public"]
+    volumes:
+      - libretranslate_api_keys:/app/db
+      - libretranslate_models:/home/libretranslate/.local
+    # depends_on:
+    #   traefik:
+    #     condition: service_healthy
+    # ports:
+    #   - "5000:5000"
+    # environment:
+    #   - TZ=${TZ:-Europe/Copenhagen}
+    # env_file:
+    #   - stack.env:rw
+    labels:
+      - sablier.enable=true
+      - sablier.group=libretranslate
+      - homepage.group=Utilities
+      - homepage.name=Libretranslate
+      - homepage.icon=libretranslate.png
+      - homepage.href=https://translate.${DOMAIN:-traefik.me}
+      - homepage.description=Translate text locally
+    tty: true
+    stdin_open: true
+    healthcheck:
+      test: ['CMD-SHELL', './venv/bin/python scripts/healthcheck.py']
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.5'
+    #       memory: 512M
+    #     reservations:
+    #       cpus: '0.25'
+    #       memory: 256M
+    restart: unless-stopped
+networks:
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    attachable: true
+volumes:
+  libretranslate_models:
+  libretranslate_api_keys:

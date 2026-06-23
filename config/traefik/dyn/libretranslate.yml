@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    libretranslate:
+      rule: Host(`translate.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: libretranslate
+      middlewares: [sablier-libretranslate@file, startup-retry@file]
+  services:
+    libretranslate:
+      loadBalancer:
+        servers:
+          - url: http://libretranslate:5000/
+  middlewares:
+    sablier-libretranslate:
+      plugin:
+        sablier:
+          group: libretranslate
+          dynamic:
+            displayName: Libretranslate
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m
