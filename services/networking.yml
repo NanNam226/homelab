@@ -2,7 +2,7 @@
 services:
   traefik:
     profiles: [infra, all]
-    image: traefik:3.6.9
+    image: traefik:3.7.1
     ports: [80:80, 443:443]
     environment:
       - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN:?Set CF_DNS_API_TOKEN in .env, direnv,
