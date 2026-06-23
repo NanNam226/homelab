@@ -21,7 +21,7 @@ services:
       - FIREWALL_INPUT_PORTS=8080,7878,8989,6881,8191,8192
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik_public
+      # - traefik.docker.network=homelab_media
       - traefik.http.routers.torrent.rule=Host(`torrent.${DOMAIN:-traefik.me}`)
       - traefik.http.routers.torrent.entrypoints=websecure
       - traefik.http.routers.torrent.service=torrent
