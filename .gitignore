@@ -16,3 +16,4 @@ config/homepage/kubernetes.yaml
 .codex
 troubleshooting/
 .vscode/
+config/homepage/proxmox.yaml
