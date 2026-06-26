@@ -22,7 +22,7 @@ services:
           cpus: '0.25'
           memory: 128M
   cloudbeaver:
-    profiles: [apps, all]
+    profiles: [apps, utils, all]
     image: dbeaver/cloudbeaver:24.3.0
     volumes:
       - cbeaver_logs:/opt/cloudbeaver/logs
@@ -47,7 +47,7 @@ services:
           cpus: '0.25'
           memory: 256M
   bentopdf:
-    profiles: [apps, all]
+    profiles: [apps, utils, all]
     image: bentopdf/bentopdf:1.2.0
     restart: unless-stopped
     networks: [traefik_public]
