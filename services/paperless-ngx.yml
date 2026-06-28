@@ -1,7 +1,7 @@
 ---
 services:
   paperless-postgres:
-    profiles: [apps, all]
+    profiles: [apps, utils, all]
     image: postgres:17.9-alpine3.23
     restart: unless-stopped
     networks: [paperless]
