@@ -9,9 +9,10 @@ services:
 #         condition: service_healthy
     ports:
       - "5501:3000"
-    # environment:
-    #   Change this to any secret key to use as your OpenAI compatible API key
-    #   - KW_SECRET_API_KEY=your-api-key
+    environment:
+      # Change this to any secret key to use as your OpenAI compatible API key
+      - KW_SECRET_API_KEY=${KOKORO_API_KEY:?Set KOKORO_API_KEY in .env, direnv,or Dockhand}
+      - KW_PUBLIC_NO_TRACK=true
       # - TZ=${TZ:-Europe/Copenhagen}
     volumes: [kokoro-cache:/kokoro/cache]
     labels:
