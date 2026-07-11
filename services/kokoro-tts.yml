@@ -2,7 +2,7 @@
 services:
   kokoro:
     image: ghcr.io/eduardolat/kokoro-web:latest
-    profiles: [apps, utils, all]
+    profiles: [apps, ai, utils, all]
     networks: ["traefik_public"]
 #     depends_on:
 #       traefik:
