@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    pipelines:
+      rule: Host(`pipelines.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: pipelines
+      middlewares: [sablier-pipelines@file, startup-retry@file]
+  services:
+    pipelines:
+      loadBalancer:
+        servers:
+          - url: http://pipelines:9099/
+  middlewares:
+    sablier-pipelines:
+      plugin:
+        sablier:
+          group: pipelines
+          dynamic:
+            displayName: Pipelines
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m

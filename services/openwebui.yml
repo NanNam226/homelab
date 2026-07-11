@@ -26,6 +26,25 @@ services:
 #           cpus: '0.25'
 #           memory: 256M
     restart: unless-stopped
+  pipelines:
+    image: 'ghcr.io/open-webui/pipelines:main'
+    profiles: [apps, ai, all]
+    networks: ["traefik_public"]
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    restart: unless-stopped
+    volumes:
+      - 'pipelines:/app/pipelines'
+    ports:
+      - 9099:9099
+    labels:
+      - sablier.enable=true
+      - sablier.group=pipelines
+      - homepage.group=Utilities
+      - homepage.name=Pipelines
+      - homepage.icon=pipelines.png
+      - homepage.href=https://pipelines.${DOMAIN:-traefik.me}
+      - homepage.description=Workflow plugin for OpenWebUI
 networks:
   traefik_public:
     name: traefik_public
@@ -33,3 +52,4 @@ networks:
     attachable: true
 volumes:
   open-webui:
+  pipelines:
