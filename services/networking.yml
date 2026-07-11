@@ -2,7 +2,7 @@
 services:
   traefik:
     profiles: [infra, all]
-    image: traefik:3.7.5
+    image: traefik:3.7.7
     ports: 
       - 80:80
       - 443:443
