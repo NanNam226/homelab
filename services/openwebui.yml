@@ -4,11 +4,17 @@ services:
     image: ghcr.io/open-webui/open-webui:main
     profiles: [apps, ai, all]
     networks: ["traefik_public"]
-    volumes: [open-webui:/app/backend/data]
+    volumes: 
+      - open-webui:/app/backend/data
+      # - ${DOCKHAND_STACK_DIR:-..}/config/openwebui:/app/backend/open_webui:rw
     # depends_on:
     #   traefik:
     #     condition: service_healthy
     ports: [3030:8080]
+    # environment:
+    #   # Change this to any secret key to use as your OpenAI compatible API key
+    #   - KW_SECRET_API_KEY=${OPENWEBUI_API_KEY:?Set OPENWEBUI_API_KEY in .env, direnv,or Dockhand}
+    #   - TZ=${TZ:-Europe/Copenhagen}
     labels:
       - sablier.enable=true
       - sablier.group=openwebui
