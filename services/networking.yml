@@ -115,6 +115,7 @@ services:
     volumes:
       - adguard_data:/opt/adguardhome/work
       - adguard_conf:/opt/adguardhome/conf
+      - letsencrypt:/letsencrypt
     networks: [traefik_public]
     labels:
       - traefik.enable=true
