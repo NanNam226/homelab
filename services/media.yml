@@ -9,6 +9,7 @@ services:
       media:
         aliases: [torrent, sonarr, radarr, flaresolverr, byparr]
       traefik_public:
+    volumes: ["../config/vpn/wireguard/${WIREGUARD_CONFIG}:/gluetun/wireguard/wg0.conf:ro"]
     environment:
       - TZ=${TZ:-Europe/Copenhagen}
       - VPN_SERVICE_PROVIDER=protonvpn
