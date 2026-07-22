@@ -2,7 +2,7 @@
 services:
   keep:
     profiles: [apps, all]
-    image: ghcr.io/karakeep-app/karakeep:0.31.0
+    image: ghcr.io/karakeep-app/karakeep:latest
     entrypoint: [/bin/sh, /usr/local/bin/karakeep-entrypoint.sh]
     restart: unless-stopped
     depends_on:

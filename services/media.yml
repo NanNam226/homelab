@@ -2,7 +2,7 @@
 services:
   gluetun:
     profiles: [apps, media, all]
-    image: qmcgaw/gluetun:v3.41.1
+    image: qmcgaw/gluetun:latest
     cap_add: [NET_ADMIN]
     devices: [/dev/net/tun:/dev/net/tun]
     networks:
@@ -66,7 +66,7 @@ services:
     restart: unless-stopped
   seerr:
     profiles: [apps, media, all]
-    image: ghcr.io/seerr-team/seerr:v3.2.0
+    image: ghcr.io/seerr-team/seerr:latest
     init: true
     networks: [traefik_public, media]
     environment: ['TZ=${TZ:-Europe/Copenhagen}', LOG_LEVEL=info, PORT=5055]
@@ -99,7 +99,7 @@ services:
           memory: 256M
   torrent:
     profiles: [apps, media, all]
-    image: lscr.io/linuxserver/qbittorrent:5.1.4-r2-ls448
+    image: lscr.io/linuxserver/qbittorrent:latest
     network_mode: service:gluetun
     depends_on: [gluetun]
     labels:
@@ -126,7 +126,7 @@ services:
           memory: 512M
   sonarr:
     profiles: [apps, media, all]
-    image: lscr.io/linuxserver/sonarr:4.0.17.2952-ls306
+    image: lscr.io/linuxserver/sonarr:latest
     network_mode: service:gluetun
     depends_on: [gluetun, torrent]
     environment:
@@ -151,7 +151,7 @@ services:
       - homepage.description=Track, download, and organize TV series automatically
   radarr:
     profiles: [apps, media, all]
-    image: lscr.io/linuxserver/radarr:6.1.1.10360-ls298
+    image: lscr.io/linuxserver/radarr:latest
     network_mode: service:gluetun
     depends_on: [gluetun, torrent]
     environment:
