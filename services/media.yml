@@ -13,11 +13,11 @@ services:
     environment:
       - TZ=${TZ:-Europe/Copenhagen}
       - VPN_SERVICE_PROVIDER=protonvpn
-      - VPN_TYPE=openvpn
+      - VPN_TYPE=${VPN_PROTOCOL:-openvpn}
       - FREE_ONLY=${VPN_FREE_ONLY:-on}
-      - OPENVPN_USER=${OPENVPN_USER:?Set OPENVPN_USER in .env, direnv, or Dockhand}
-      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD:?Set OPENVPN_PASSWORD in .env, direnv,
-        or Dockhand}
+      # - OPENVPN_USER=${OPENVPN_USER:?Set OPENVPN_USER in .env, direnv, or Dockhand}
+      # - OPENVPN_PASSWORD=${OPENVPN_PASSWORD:?Set OPENVPN_PASSWORD in .env, direnv,
+      #   or Dockhand}
       - SERVER_COUNTRIES=${VPN_SERVER_COUNTRIES:-Netherlands}
       - FIREWALL_INPUT_PORTS=8080,7878,8989,6881,8191,8192
     labels:
