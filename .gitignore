@@ -9,6 +9,7 @@ site/
 *~
 home-assistant/config/
 config/homepage/logs/
+config/vpn/openvpn/
 config/vpn/wireguard/
 services/config/homepage/logs/
 config/homepage/custom.css
