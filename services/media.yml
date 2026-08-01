@@ -2,7 +2,7 @@
 services:
   gluetun:
     profiles: [apps, media, all]
-    image: qmcgaw/gluetun:latest
+    image: qmcgaw/gluetun:v3.40.2
     cap_add: [NET_ADMIN]
     devices: [/dev/net/tun:/dev/net/tun]
     networks:
@@ -39,7 +39,7 @@ services:
     restart: unless-stopped
   jellyfin:
     profiles: [apps, media, all]
-    image: linuxserver/jellyfin:10.11.8
+    image: linuxserver/jellyfin:latest
     networks: [traefik_public, media]
     devices:
       - /dev/dri/:/dev/dri/
