@@ -2,7 +2,7 @@
 services:
   listmonk-postgres:
     profiles: [apps, utils, all]
-    image: postgres:17.9-alpine3.23
+    image: postgres:latest
     environment:
       - POSTGRES_USER=${LISTMONK_db__user:-listmonk}
       - POSTGRES_PASSWORD=${LISTMONK_db__password:?Set LISTMONK_db__password in .env,
@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
   listmonk:
     profiles: [apps, utils, all]
-    image: listmonk/listmonk:v6.1.0
+    image: listmonk/listmonk:latest
     depends_on:
       listmonk-postgres:
         condition: service_healthy
