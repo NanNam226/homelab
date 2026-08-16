@@ -178,6 +178,7 @@ networks:
     name: traefik_public
     driver: bridge
     attachable: true
+    enable_ipv6: false
 volumes:
   adguard_data:
   adguard_conf:
