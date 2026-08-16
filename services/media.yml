@@ -2,7 +2,7 @@
 services:
   gluetun:
     profiles: [apps, media, all]
-    image: qmcgaw/gluetun:v3.40.2
+    image: qmcgaw/gluetun:v3.41.3
     cap_add: [NET_ADMIN]
     devices: [/dev/net/tun:/dev/net/tun]
     networks:
