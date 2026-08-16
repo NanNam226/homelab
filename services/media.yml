@@ -239,12 +239,14 @@ services:
     restart: unless-stopped
 networks:
   media:
+    enable_ipv6: false
     driver_opts:
       com.docker.network.driver.mtu: "1400"
   traefik_public:
     name: traefik_public
     driver: bridge
     attachable: true
+    enable_ipv6: false
     driver_opts:
       com.docker.network.driver.mtu: "1400"
 volumes:
