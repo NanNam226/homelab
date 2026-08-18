@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    actual_server:
+      rule: Host(`budget.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: actual_server
+      middlewares: [sablier-actual_server@file, startup-retry@file]
+  services:
+    actual_server:
+      loadBalancer:
+        servers:
+          - url: http://actual_server:5006/
+  middlewares:
+    sablier-actual_server:
+      plugin:
+        sablier:
+          group: actual_server
+          dynamic:
+            displayName: service
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m
