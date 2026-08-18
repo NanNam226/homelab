@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    joplin:
+      rule: Host(`joplin.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: joplin
+      middlewares: [sablier-joplin@file, startup-retry@file]
+  services:
+    joplin:
+      loadBalancer:
+        servers:
+          - url: https://joplin:22300/
+  middlewares:
+    sablier-joplin:
+      plugin:
+        sablier:
+          group: joplin
+          dynamic:
+            displayName: service
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m
