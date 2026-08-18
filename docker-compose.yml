@@ -26,6 +26,7 @@ include:
   - services/nextcloud.yml
   - services/openwebui.yml
   - services/kokoro-tts.yml
+  - services/miniflux.yml
   - services/libretranslate.yml
   - services/ollama.yml
 # Log rotation configuration to prevent disk fill
