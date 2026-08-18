@@ -1,0 +1,45 @@
+services:
+  miniflux:
+    image: ${MINIFLUX_IMAGE:-miniflux/miniflux:latest}
+    profiles: [apps, utils, all]
+    networks: [traefik_public]
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - "8080"
+    environment:
+      - DATABASE_URL=postgres://miniflux:secret@db/miniflux?sslmode=disable
+      - RUN_MIGRATIONS=1
+      - CREATE_ADMIN=1
+      - ADMIN_USERNAME=${MINIFLUX_ADMIN_UNAME}
+      - ADMIN_PASSWORD=${MINIFLUX_ADMIN_PASSWQRD}
+      # - BASE_URL=https://miniflux.example.org
+    labels:
+      - sablier.enable=true
+      - sablier.group=miniflux
+      - homepage.group=Utilities
+      - homepage.name=Miniflux
+      - homepage.icon=miniflux.png
+      - homepage.href=https://rss.${DOMAIN:-traefik.me}
+      - homepage.description=RSS feed backend.
+  db:
+    image: postgres:latest
+    networks: [traefik_public]
+    environment:
+      - POSTGRES_USER=miniflux
+      - POSTGRES_PASSWORD=${DB_MINIFLUX_PASSWQRD}
+      - POSTGRES_DB=miniflux
+    volumes:
+      - miniflux_db:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "miniflux"]
+      interval: 10s
+      start_period: 30s
+networks:
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    attachable: true
+volumes:
+  miniflux_db:

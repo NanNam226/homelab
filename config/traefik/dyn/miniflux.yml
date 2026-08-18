@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    miniflux:
+      rule: Host(`rss.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: miniflux
+      middlewares: [sablier-miniflux@file, startup-retry@file]
+  services:
+    miniflux:
+      loadBalancer:
+        servers:
+          - url: http://miniflux:8080/
+  middlewares:
+    sablier-miniflux:
+      plugin:
+        sablier:
+          group: miniflux
+          dynamic:
+            displayName: service
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m
