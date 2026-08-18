@@ -1,0 +1,16 @@
+---
+services:
+  joplin:
+    image: lscr.io/linuxserver/joplin:latest
+    environment:
+      - PIXELFLUX_WAYLAND=true
+      # Ensure these point to the rendered node injected by the runtime (usually renderD128)
+      - DRINODE=/dev/dri/renderD128
+      - DRI_NODE=/dev/dri/renderD128
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [compute,video,graphics,utility]

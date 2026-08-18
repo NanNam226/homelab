@@ -1,0 +1,20 @@
+---
+services:
+  duckstation:
+    image: lscr.io/linuxserver/duckstation:latest
+    devices:
+      - /dev/dri:/dev/dri
+    environment:
+      - PIXELFLUX_WAYLAND=true
+      # Optional: Specify device if multiple exist (IE: /dev/dri/renderD129)
+      - DRINODE=/dev/dri/renderD128
+      - DRI_NODE=/dev/dri/renderD128
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [compute,video,graphics,utility]
+
+# PS1 Emulator

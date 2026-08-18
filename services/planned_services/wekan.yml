@@ -105,6 +105,7 @@ services:
     # b) GitHub Container registry.
     # b1) Latest release tag:
     image: ghcr.io/wekan/wekan:latest
+    profiles: [all, utils, apps]
     # b2) Newest git commit automatic build:
     #image: ghcr.io/wekan/wekan:main
     # c) Quay:

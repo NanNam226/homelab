@@ -2,6 +2,7 @@ services:
   hbbs:
     container_name: hbbs
     image: rustdesk/rustdesk-server:latest
+    profiles = ['all','apps']
     command: hbbs
     volumes:
       - ./data:/root
@@ -14,6 +15,7 @@ services:
   hbbr:
     container_name: hbbr
     image: rustdesk/rustdesk-server:latest
+    profiles: [all, apps]
     command: hbbr
     volumes:
       - ./data:/root
