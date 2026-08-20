@@ -1,28 +1,110 @@
 services:
-  ryot-db:
+  ryot_db:
     image: postgres:18-alpine # at-least version 15 is required
+    profiles: [apps, utils, media, all]
+    networks: [ryot]
     restart: unless-stopped
-    container_name: ryot-db
     volumes:
-      - postgres_storage:/var/lib/postgresql
+      - ryot_postgres_data:/var/lib/postgresql
     environment:
-      - TZ=Europe/Amsterdam
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-
+      - TZ=${TZ:-Europe/Copenhagen}
+      - POSTGRES_DB=ryot_db
+      - POSTGRES_USER=ryot_db 
+      - POSTGRES_PASSWORD=${RYOT_DB_PASSWORD:?Set RYOT_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ryot_db -d ryot_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
   ryot:
     image: ignisda/ryot:v10 # or ghcr.io/ignisda/ryot:v10
-    pull_policy: always
-    container_name: ryot
+    profiles: [apps, utils, media, all]
+    networks: [traefik_public, ryot]
     restart: unless-stopped
-    ports:
-      - "8000:8000"
+    depends_on: 
+      ryot_db:
+        condition: service_healthy
+    # ports: ["8000:8000"]
     environment:
-      - TZ=Europe/Amsterdam
-      - FRONTEND_URL=https://ryot.your-domain.com # IP address is fine too
-      - DATABASE_URL=postgres://postgres:postgres@ryot-db:5432/postgres # REQUIRED
-      - SERVER_ADMIN_ACCESS_TOKEN=28ebb3ae554fa9867ba0 # REQUIRED: set to a long random string
-
+      - TZ=${TZ:-Europe/Copenhagen}
+      - DISABLE_TELEMETRY=true
+      # Users
+      - USERS_ALLOW_REGISTRATION=true
+      - USERS_DISABLE_LOCAL_AUTH=false
+      - USERS_TOKEN_VALID_FOR_DAYS=90
+      - SERVER_ADMIN_ACCESS_TOKEN=${RYOT_ADMIN_ACCESS_TOKEN}
+      # Frontend
+      # - FRONTEND_URL=https://ryot.{DOMAIN:-traefik.me} # IP address is fine too
+      # - FRONTEND_DASHBOARD_MESSAGE=${RYOT_DASHBOARD_MESSAGE:-""}
+      # # Settings related to Umami analytics.
+      # - FRONTEND_UMAMI_SCRIPT_URL=""
+      # - FRONTEND_UMAMI_WEBSITE_ID=""
+      # # RYOT subscription (pro) key
+      # - SERVER_PRO_KEY=""
+      # # An array of URLs for CORS.
+      # - SERVER_CORS_ORIGINS=[]
+      # # OIDC
+      # - SERVER_OIDC_CLIENT_ID=""
+      # - SERVER_OIDC_CLIENT_SECRET=""
+      # - SERVER_OIDC_ISSUER_URL=""
+      # # The mailer related settings.
+      # - SERVER_SMTP_MAILBOX="Ryot <no-reply@ryot.io>"
+      # - SERVER_SMTP_PASSWORD=""
+      # - SERVER_SMTP_SERVER=""
+      # - SERVER_SMTP_USER=""
+      # Backend
+      # - SERVER_BACKEND_HOST="0.0.0.0"
+      # - SERVER_BACKEND_PORT=5000
+      - DATABASE_URL=postgres://ryot_db:${RYOT_DB_PASSWORD}@ryot_db:5432/ryot_db # REQUIRED
+      - SCHEDULER_FREQUENT_CRON_JOBS_SCHEDULE="every 5 minutes"
+      - SCHEDULER_INFREQUENT_CRON_JOBS_SCHEDULE="every midnight"
+      - SERVER_PROGRESS_UPDATE_THRESHOLD=1
+      - SERVER_SLEEP_BEFORE_STARTUP_SECONDS=0
+      - SERVER_MAX_FILE_SIZE_MB=70
+      - SERVER_DISABLE_BACKGROUND_JOBS=false
+      # - SERVER_GRAPHQL_PLAYGROUND_ENABLED=true
+      # - FILE_STORAGE_S3_ACCESS_KEY_ID=""
+      # - FILE_STORAGE_S3_BUCKET_NAME=""
+      # - FILE_STORAGE_S3_REGION="us-east-1"
+      # - FILE_STORAGE_S3_SECRET_ACCESS_KEY=""
+      # - FILE_STORAGE_S3_URL=""
+      # API keys, tokens & settings
+      # - MOVIES_AND_SHOWS_TMDB_ACCESS_TOKEN=${TMDB_ACCESS_TOKEN:?Set TMDB_ACCESS_TOKEN}
+      # - MOVIES_AND_SHOWS_TVDB_API_KEY=${TVDB_API_KEY:?Set TVDB_API_KEY}
+      # - VIDEO_GAMES_GIANT_BOMB_API_KEY=""
+      # - VIDEO_GAMES_IGDB_IMAGE_SIZE="t_original"
+      # - PODCASTS_LISTENNOTES_API_TOKEN=""
+      # - ANIME_AND_MANGA_MAL_CLIENT_ID=""
+      # - BOOKS_HARDCOVER_API_KEY=""
+      # - BOOKS_OPENLIBRARY_COVER_IMAGE_SIZE="M"
+      # - COMIC_BOOK_METRON_PASSWORD=""
+      # - COMIC_BOOK_METRON_USERNAME=""
+      # # Importer settings
+      # # The client ID for the Trakt importer. **Required** to enable Trakt importer.
+      # - SERVER_IMPORTER_TRAKT_CLIENT_ID=""
+      # - SERVER_IS_DEMO_INSTANCE=false
+    labels:
+      - sablier.enable=true
+      - sablier.group=ryot
+      - homepage.group=Media & Files
+      - homepage.name=Ryot
+      - homepage.icon=ryot.png
+      - homepage.href=https://ryot.${DOMAIN:-traefik.me}
+      - homepage.description=Self-hosted scrobbler & IMDB alternative.
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+networks:
+  ryot:
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    attachable: true
 volumes:
-  postgres_storage:
+  ryot_postgres_data:

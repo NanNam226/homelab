@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    ryot:
+      rule: Host(`ryot.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: ryot
+      middlewares: [sablier-ryot@file, startup-retry@file]
+  services:
+    ryot:
+      loadBalancer:
+        servers:
+          - url: http://ryot:8000/
+  middlewares:
+    sablier-ryot:
+      plugin:
+        sablier:
+          group: ryot
+          dynamic:
+            displayName: Ryot
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m
