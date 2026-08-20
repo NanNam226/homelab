@@ -26,6 +26,7 @@ services:
 
   miniflux_db:
     image: postgres:latest
+    profiles: [apps, utils, all]
     networks: [traefik_public]
     environment:
       - POSTGRES_USER=miniflux
