@@ -5,7 +5,7 @@ services:
     env_file: [./.env-teable]
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set teable-storage https://s3.jgalabs.dk $$MINIO_ACCESS_KEY
+      /usr/bin/mc alias set teable-storage https://s3.${DOMAIN:-traefik.me} $$MINIO_ACCESS_KEY
       $$MINIO_SECRET_KEY;
       /usr/bin/mc mb teable-storage/public;
       /usr/bin/mc anonymous set public teable-storage/public;
