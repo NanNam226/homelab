@@ -1,7 +1,7 @@
 services:
   budget:
     image: docker.io/actualbudget/actual-server:latest
-    profiles: [apps, utils, all]
+    profiles: [apps, utils, always, all]
     networks: [traefik_public]
     volumes:
       - actual_data:/data
