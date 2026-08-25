@@ -1,7 +1,7 @@
 ---
 services:
   joplin_db:
-    image: postgres:latest
+    image: postgres:16
     profiles: [apps, utils, all]
     volumes: [joplin_postgres:/var/lib/postgresql/data]
     networks:
@@ -50,7 +50,7 @@ services:
     restart: unless-stopped
 
   transcribe_db:
-    image: postgres:latest
+    image: postgres:16
     profiles: [apps, utils, all]
     volumes: [transcribe_postgres:/var/lib/postgresql/data]
     networks: [transcribe_network]
