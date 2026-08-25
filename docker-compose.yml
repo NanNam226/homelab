@@ -31,7 +31,7 @@ include:
   - services/miniflux.yml
   - services/libretranslate.yml
   - services/ollama.yml
-  # - services/joplin.yml
+  - services/joplin.yml
 # Log rotation configuration to prevent disk fill
 # Reference in services with: <<: *x-logging
 x-logging:
