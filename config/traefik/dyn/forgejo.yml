@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    forgejo:
+      rule: Host(`rss.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: forgejo
+      middlewares: [sablier-forgejo@file, startup-retry@file]
+  services:
+    forgejo:
+      loadBalancer:
+        servers:
+          - url: http://forgejo:3000/
+  middlewares:
+    sablier-forgejo:
+      plugin:
+        sablier:
+          group: forgejo
+          dynamic:
+            displayName: Forgejo
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m

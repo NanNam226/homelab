@@ -25,6 +25,7 @@ include:
   - services/homepage.yml  # Homepage dashboard
   - home-assistant/docker-compose.yml  # Home Assistant smart home stack
   # - services/nextcloud.yml
+  # - services/forgejo.yml
   - services/actual-budget.yml
   - services/openwebui.yml
   - services/kokoro-tts.yml

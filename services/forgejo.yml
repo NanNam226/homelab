@@ -1,0 +1,61 @@
+---
+services:
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:16
+    profiles: [apps, utils, always, all]
+    networks: [traefik_public]
+    restart: unless-stopped
+    volumes:
+      - ./forgejo:/data
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - '3000:3000'
+      - '222:22'
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - FORGEJO__database__DB_TYPE=postgres
+      - FORGEJO__database__HOST=forgejo_db:5432
+      - FORGEJO__database__NAME=forgejo_db
+      - FORGEJO__database__USER=forgejo_db
+      - FORGEJO__database__PASSWD=${DB_FORGEJO_PASSWORD:?Add a password to env-file for Forgejo env; `DB_FORGEJO_PASSWORD`}
+    labels:
+      - sablier.enable=true
+      - sablier.group=budget
+      - homepage.group=Utilities
+      - homepage.name=Forgejo
+      - homepage.icon=forgejo.png
+      - homepage.href=https://forgejo.${DOMAIN:-traefik.me}
+      - homepage.description=Self hosted git server
+    depends_on:
+      - forgejo_db
+
+  forgejo_db:
+    image: postgres:14
+    restart: always
+    environment:
+      - POSTGRES_USER=forgejo_db
+      - POSTGRES_PASSWORD=${DB_FORGEJO_PASSWORD:?Add a password to env-file for Forgejo env; `DB_FORGEJO_PASSWORD`}
+      - POSTGRES_DB=forgejo_db
+    networks:
+      - forgejo
+    volumes:
+      - forgejo_db:/var/lib/postgresql/data
+
+networks:
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    attachable: true
+
+volumes:
+  forgejo_db:
+
+
+##########################################################################
+# Source of docker compose before edits
+# https://forgejo.org/docs/latest/admin/installation/docker/
+#
+# Cheat sheet:
+# https://forgejo.org/docs/latest/admin/config-cheat-sheet/
+##########################################################################
