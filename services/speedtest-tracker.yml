@@ -1,6 +1,6 @@
 ---
 services:
-  speedtest-tracker:
+  speedtest:
     profiles: [apps, infra, all]
     image: lscr.io/linuxserver/speedtest-tracker:latest
     restart: unless-stopped
@@ -13,7 +13,7 @@ services:
       - APP_URL=https://speed.${DOMAIN:-traefik.me}
       - ASSET_URL=https://speed.${DOMAIN:-traefik.me}
       - DB_CONNECTION=sqlite
-    volumes: [speedtest_tracker_data:/config]
+    volumes: [speedtest_data:/config]
     networks: [traefik_public]
     labels:
       - sablier.enable=true
@@ -47,7 +47,7 @@ services:
     profiles: [apps, all]
     image: bash:5.2-alpine3.22
     depends_on:
-      speedtest-tracker:
+      speedtest:
         condition: service_started
     environment:
       - DOMAIN=${DOMAIN:-traefik.me}
@@ -73,4 +73,4 @@ networks:
     driver: bridge
     attachable: true
 volumes:
-  speedtest_tracker_data:
+  speedtest_data:

@@ -10,7 +10,7 @@ http:
     speedtest:
       loadBalancer:
         servers:
-          - url: http://speedtest-tracker:80/
+          - url: http://speedtest:80/
   middlewares:
     sablier-speedtest:
       plugin:
