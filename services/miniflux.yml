@@ -1,4 +1,19 @@
 services:
+  miniflux_db:
+    image: postgres:latest
+    profiles: [apps, utils, all]
+    networks: [traefik_public]
+    environment:
+      - POSTGRES_DB=miniflux_db
+      - POSTGRES_USER=miniflux_db
+      - POSTGRES_PASSWORD=${DB_MINIFLUX_PASSWQRD}
+    volumes:
+      - miniflux_db:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "miniflux_db"]
+      interval: 10s
+      start_period: 30s
+
   miniflux:
     image: ${MINIFLUX_IMAGE:-miniflux/miniflux:latest}
     profiles: [apps, utils, always, all]
@@ -9,7 +24,7 @@ services:
     expose:
       - "8080"
     environment:
-      - DATABASE_URL=postgres://miniflux:secret@miniflux_db_data/miniflux?sslmode=disable
+      - DATABASE_URL=postgres://miniflux_db:${DB_MINIFLUX_PASSWQRD}@miniflux_db/miniflux_db?sslmode=disable
       - RUN_MIGRATIONS=1
       - CREATE_ADMIN=1
       - ADMIN_USERNAME=${MINIFLUX_ADMIN_UNAME}
@@ -24,21 +39,6 @@ services:
       - homepage.href=https://rss.${DOMAIN:-traefik.me}
       - homepage.description=RSS feed backend.
 
-  miniflux_db:
-    image: postgres:latest
-    profiles: [apps, utils, all]
-    networks: [traefik_public]
-    environment:
-      - POSTGRES_USER=miniflux
-      - POSTGRES_PASSWORD=${DB_MINIFLUX_PASSWQRD}
-      - POSTGRES_DB=miniflux
-    volumes:
-      - miniflux_data:/var/lib/postgresql
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "miniflux"]
-      interval: 10s
-      start_period: 30s
-
 networks:
   traefik_public:
     name: traefik_public
@@ -46,4 +46,4 @@ networks:
     attachable: true
 
 volumes:
-  miniflux_data:
+  miniflux_db:
