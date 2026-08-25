@@ -17,7 +17,7 @@ http:
         sablier:
           group: miniflux
           dynamic:
-            displayName: service
+            displayName: Miniflux
             refreshFrequency: 2s
             showDetails: 'true'
             theme: ghost
