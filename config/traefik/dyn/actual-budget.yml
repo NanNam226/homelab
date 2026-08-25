@@ -1,21 +1,21 @@
 ---
 http:
   routers:
-    actual_server:
+    budget:
       rule: Host(`budget.{{ env "DOMAIN" }}`)
       entrypoints: [websecure]
-      service: actual_server
-      middlewares: [sablier-actual_server@file, startup-retry@file]
+      service: budget
+      middlewares: [sablier-budget@file, startup-retry@file]
   services:
-    actual_server:
+    budget:
       loadBalancer:
         servers:
-          - url: http://actual_server:5006/
+          - url: http://budget:5006/
   middlewares:
-    sablier-actual_server:
+    sablier-budget:
       plugin:
         sablier:
-          group: actual_server
+          group: budget
           dynamic:
             displayName: Budget
             refreshFrequency: 2s

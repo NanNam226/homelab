@@ -1,5 +1,5 @@
 services:
-  actual_server:
+  budget:
     image: docker.io/actualbudget/actual-server:latest
     profiles: [apps, utils, all]
     networks: [traefik_public]
@@ -21,7 +21,7 @@ services:
       # !! If you are not using any of these options, remove the 'environment:' tag entirely.
     labels:
       - sablier.enable=true
-      - sablier.group=actual_server
+      - sablier.group=budget
       - homepage.group=Utilities
       - homepage.name=Actual budget
       - homepage.icon=actual-budget.png
