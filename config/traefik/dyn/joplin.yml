@@ -10,7 +10,7 @@ http:
     joplin:
       loadBalancer:
         servers:
-          - url: https://joplin:22300/
+          - url: http://joplin:22300/
   middlewares:
     sablier-joplin:
       plugin:
