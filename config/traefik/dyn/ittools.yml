@@ -17,7 +17,7 @@ http:
         sablier:
           group: ittools
           dynamic:
-            displayName: service
+            displayName: IT-tools
             refreshFrequency: 2s
             showDetails: 'true'
             theme: ghost

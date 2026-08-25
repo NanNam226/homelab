@@ -17,7 +17,7 @@ http:
         sablier:
           group: keep
           dynamic:
-            displayName: service
+            displayName: Karakeep
             refreshFrequency: 2s
             showDetails: 'true'
             theme: ghost

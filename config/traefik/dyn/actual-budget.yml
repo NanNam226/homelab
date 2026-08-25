@@ -17,7 +17,7 @@ http:
         sablier:
           group: actual_server
           dynamic:
-            displayName: service
+            displayName: Budget
             refreshFrequency: 2s
             showDetails: 'true'
             theme: ghost

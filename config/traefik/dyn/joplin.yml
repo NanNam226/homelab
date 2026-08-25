@@ -17,7 +17,7 @@ http:
         sablier:
           group: joplin
           dynamic:
-            displayName: service
+            displayName: Joplin
             refreshFrequency: 2s
             showDetails: 'true'
             theme: ghost

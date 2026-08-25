@@ -17,7 +17,7 @@ http:
         sablier:
           group: home
           dynamic:
-            displayName: service
+            displayName: Homepage
             refreshFrequency: 2s
             showDetails: 'true'
             theme: ghost
