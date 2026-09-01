@@ -18,7 +18,7 @@ services:
 
   joplin:
     image: joplin/server:latest
-    profiles: [apps, utils, all]
+    profiles: [apps, utils, always, all]
     networks: 
       - joplin_network
       - traefik_public
