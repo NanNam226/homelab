@@ -2,54 +2,67 @@
 services:
   forgejo:
     image: codeberg.org/forgejo/forgejo:16
-    profiles: [apps, utils, always, all]
-    networks: [traefik_public]
+    profiles: [apps, utils, all]
+    networks: 
+      - forgejo_network
+      - traefik_public
     restart: unless-stopped
     volumes:
-      - ./forgejo:/data
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - '3000:3000'
-      - '222:22'
+      - forgejo_data:/data
+    # ports:
+    #   - '3333:3000'
+      # - '222:22'
     environment:
-      - USER_UID=1000
-      - USER_GID=1000
+      - DISABLE_SSH=true
+      # - SSH_LISTEN_PORT=222
+      - HTTP_PORT=3000
+      - ENABLE_ACME=false
       - FORGEJO__database__DB_TYPE=postgres
       - FORGEJO__database__HOST=forgejo_db:5432
       - FORGEJO__database__NAME=forgejo_db
       - FORGEJO__database__USER=forgejo_db
       - FORGEJO__database__PASSWD=${DB_FORGEJO_PASSWORD:?Add a password to env-file for Forgejo env; `DB_FORGEJO_PASSWORD`}
+      - USER_UID=1000
+      - USER_GID=1000
     labels:
       - sablier.enable=true
-      - sablier.group=budget
+      - sablier.group=forgejo
       - homepage.group=Utilities
       - homepage.name=Forgejo
       - homepage.icon=forgejo.png
-      - homepage.href=https://forgejo.${DOMAIN:-traefik.me}
+      - homepage.href=https://git.${DOMAIN:-traefik.me}
       - homepage.description=Self hosted git server
     depends_on:
       - forgejo_db
 
   forgejo_db:
     image: postgres:14
+    profiles: [apps, utils, all]
     restart: always
     environment:
       - POSTGRES_USER=forgejo_db
       - POSTGRES_PASSWORD=${DB_FORGEJO_PASSWORD:?Add a password to env-file for Forgejo env; `DB_FORGEJO_PASSWORD`}
       - POSTGRES_DB=forgejo_db
-    networks:
-      - forgejo
+    networks: [forgejo_network]
     volumes:
       - forgejo_db:/var/lib/postgresql/data
 
 networks:
+  forgejo_network:
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
   traefik_public:
     name: traefik_public
     driver: bridge
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
     attachable: true
 
 volumes:
   forgejo_db:
+  forgejo_data:
 
 
 ##########################################################################

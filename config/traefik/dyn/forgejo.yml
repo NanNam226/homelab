@@ -2,7 +2,7 @@
 http:
   routers:
     forgejo:
-      rule: Host(`rss.{{ env "DOMAIN" }}`)
+      rule: Host(`git.{{ env "DOMAIN" }}`)
       entrypoints: [websecure]
       service: forgejo
       middlewares: [sablier-forgejo@file, startup-retry@file]
