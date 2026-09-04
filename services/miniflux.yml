@@ -4,6 +4,7 @@ services:
     image: postgres:latest
     profiles: [apps, utils, always, all]
     networks: [miniflux_network]
+    restart: unless-stopped
     environment:
       - POSTGRES_DB=miniflux_db
       - POSTGRES_USER=miniflux_db
@@ -21,6 +22,7 @@ services:
     networks: 
       - miniflux_network
       - traefik_public
+    restart: unless-stopped
     depends_on:
       miniflux_db:
         condition: service_healthy
