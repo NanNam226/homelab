@@ -13,6 +13,7 @@ services:
     #   - '3333:3000'
       # - '222:22'
     environment:
+      - TZ=${TZ:-Europe/Copenhagen}
       - DISABLE_SSH=true
       # - SSH_LISTEN_PORT=222
       - HTTP_PORT=3000
@@ -40,6 +41,7 @@ services:
     profiles: [apps, utils, all]
     restart: always
     environment:
+      - TZ=${TZ:-Europe/Copenhagen}
       - POSTGRES_USER=forgejo_db
       - POSTGRES_PASSWORD=${DB_FORGEJO_PASSWORD:?Add a password to env-file for Forgejo env; `DB_FORGEJO_PASSWORD`}
       - POSTGRES_DB=forgejo_db

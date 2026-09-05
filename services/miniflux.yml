@@ -6,6 +6,7 @@ services:
     networks: [miniflux_network]
     restart: unless-stopped
     environment:
+      - TZ=${TZ:-Europe/Copenhagen}
       - POSTGRES_DB=miniflux_db
       - POSTGRES_USER=miniflux_db
       - POSTGRES_PASSWORD=${DB_MINIFLUX_PASSWQRD}
@@ -29,6 +30,7 @@ services:
     # expose:
     #   - "8080"
     environment:
+      - TZ=${TZ:-Europe/Copenhagen}
       - DATABASE_URL=postgres://miniflux_db:${DB_MINIFLUX_PASSWQRD}@miniflux_db/miniflux_db?sslmode=disable
       - RUN_MIGRATIONS=1
       - CREATE_ADMIN=1

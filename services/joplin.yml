@@ -12,6 +12,7 @@ services:
       - 5432:5432
     restart: unless-stopped
     environment:
+      - TZ=${TZ:-Europe/Copenhagen}
       - POSTGRES_USER=joplin_db
       - POSTGRES_PASSWORD=${JOPLIN_POSTGRES_PASSWORD}
       - POSTGRES_DB=joplin_db
