@@ -37,6 +37,11 @@ services:
       - ADMIN_USERNAME=${MINIFLUX_ADMIN_UNAME}
       - ADMIN_PASSWORD=${MINIFLUX_ADMIN_PASSWQRD}
       # - BASE_URL=https://miniflux.example.org
+      - DISABLE_HTTP_SERVICE=0
+      # - METRICS_REFRESH_INTERVAL=15
+      # - SCHEDULER_ENTRY_FREQUENCY_MAX_INTERVAL=15
+      # - SCHEDULER_ROUND_ROBIN_MIN_INTERVAL=
+      # - SCHEDULER_ROUND_ROBIN_MAX_INTERVAL=1440
     labels:
       - sablier.enable=true
       - sablier.group=miniflux
