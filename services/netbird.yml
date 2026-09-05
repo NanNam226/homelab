@@ -1,0 +1,104 @@
+---
+services:
+  netbird-dashboard:
+    image: netbirdio/dashboard:latest
+    profiles: [apps, infra, all]
+    networks: [traefik_public]
+    restart: unless-stopped
+    env_file:
+      - ../config/vpn/netbird/dashboard.env
+    labels:
+      - traefik.enable=true
+      # - traefik.http.routers.netbird-dashboard.rule=Host(`netbird.example.com`)
+      # - traefik.http.routers.netbird-dashboard.entrypoints=websecure
+      # - traefik.http.routers.netbird-dashboard.tls=true
+      # - traefik.http.routers.netbird-dashboard.tls.certresolver=letsencrypt
+      # - traefik.http.routers.netbird-dashboard.priority=1
+      # - traefik.http.services.netbird-dashboard.loadbalancer.server.port=80
+      - sablier.enable=true
+      - sablier.group=netbird
+      - homepage.group=Networking
+      - homepage.name=Netbird-dashboard
+      - homepage.icon=netbird.png
+      - homepage.href=https://vpn.${DOMAIN:-traefik.me}
+      - homepage.description=Dashboard for the netbird private VPN backend.
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "2"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+          
+  netbird-server:
+    image: netbirdio/netbird-server:latest
+    profiles: [apps, infra, all]
+    networks: [traefik_public]
+    restart: unless-stopped
+    ports:
+      - '3478:3478/udp'
+    volumes:
+      - netbird_data:/var/lib/netbird
+      - ../config/vpn/netbird/config.yml:/etc/netbird/config.yaml:ro
+    command: ["--config", "/etc/netbird/config.yaml"]
+    labels:
+      - traefik.enable=true
+      # gRPC router (needs h2c backend for HTTP/2 cleartext)
+      # The /management.ProxyService/ path is only required if the reverse proxy
+      # container (netbirdio/reverse-proxy) connects through Traefik — i.e., it
+      # runs on a separate host or a different Docker network. If the proxy is on
+      # the same Docker network as netbird-server, it connects directly and this
+      # path prefix can be omitted.
+      - traefik.http.routers.netbird-grpc.rule=Host(https://joplin.${DOMAIN:-traefik.me}) && (PathPrefix(`/signalexchange.SignalExchange/`) || PathPrefix(`/management.ManagementService/`) || PathPrefix(`/management.ProxyService/`))
+      - traefik.http.routers.netbird-grpc.entrypoints=websecure
+      - traefik.http.routers.netbird-grpc.tls=true
+      - traefik.http.routers.netbird-grpc.tls.certresolver=letsencrypt
+      - traefik.http.routers.netbird-grpc.service=netbird-server-h2c
+      # Backend router (relay, WebSocket, API, OAuth2)
+      - traefik.http.routers.netbird-backend.rule=Host(https://joplin.${DOMAIN:-traefik.me}) && (PathPrefix(`/relay`) || PathPrefix(`/ws-proxy/`) || PathPrefix(`/api`) || PathPrefix(`/oauth2`))
+      - traefik.http.routers.netbird-backend.entrypoints=websecure
+      - traefik.http.routers.netbird-backend.tls=true
+      - traefik.http.routers.netbird-backend.tls.certresolver=letsencrypt
+      - traefik.http.routers.netbird-backend.service=netbird-server
+      # Services
+      - traefik.http.services.netbird-server.loadbalancer.server.port=80
+      - traefik.http.services.netbird-server-h2c.loadbalancer.server.port=80
+      - traefik.http.services.netbird-server-h2c.loadbalancer.server.scheme=h2c
+      # - sablier.enable=true
+      # - sablier.group=netbird
+      - homepage.group=Networking
+      - homepage.name=Netbird-server
+      - homepage.icon=netbird-server.png
+      - homepage.href=https://vpn-server.${DOMAIN:-traefik.me}
+      - homepage.description=Netbird private VPN backend.
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "2"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+networks:
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
+    attachable: true
+
+volumes:
+  netbird_data:

@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    netbird-dashboard:
+      rule: Host(`vpn.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: netbird-dashboard
+      middlewares: [sablier-netbird-dashboard@file, startup-retry@file]
+  services:
+    netbird-dashboard:
+      loadBalancer:
+        servers:
+          - url: http://netbird-dashboard:80/
+  middlewares:
+    sablier-netbird-dashboard:
+      plugin:
+        sablier:
+          group: netbird-dashboard
+          dynamic:
+            displayName: netbird-dashboard
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m
