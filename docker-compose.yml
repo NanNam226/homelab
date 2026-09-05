@@ -6,7 +6,7 @@ include:
   # Core infrastructure
   - services/networking.yml  # Traefik, Sablier, Whoami, AdGuard
   # - services/netbird.yml # Netbird-server, Netbird-dashboard
-  - services/rustfs.yml  # RustFS S3-compatible storage
+  # - services/rustfs.yml  # RustFS S3-compatible storage
 
   # Developer tools
   - services/tools.yml  # IT Tools, CloudBeaver, BentoPDF
