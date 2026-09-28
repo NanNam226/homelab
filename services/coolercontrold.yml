@@ -1,0 +1,41 @@
+---
+services:
+  coolercontrold:    
+    profiles: [apps, always, all]
+    image: coolercontrol/coolercontrold
+    networks: [traefik_public]
+    volumes:
+      - ../config/coolercontrol/:/etc/coolercontrol/
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "11987:11987"
+    environment:
+      - TZ=${TZ:-Europe/Copenhagen}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.coolercontrold.rule=Host(`coolercontrold.${DOMAIN:-traefik.me}`)
+      - traefik.http.routers.coolercontrold.entrypoints=websecure
+      - traefik.http.services.coolercontrold.loadbalancer.server.port=11987
+      - homepage.group=Utilities
+      - homepage.name=coolercontrold
+      - homepage.icon=coolercontrol.png
+      - homepage.href=https://coolercontrold.${DOMAIN:-traefik.me}
+      - homepage.description=Daemon for the coolercontrol UI.
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+networks:
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
+    attachable: true
