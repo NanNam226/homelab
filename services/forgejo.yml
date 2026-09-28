@@ -2,7 +2,7 @@
 services:
   forgejo:
     image: codeberg.org/forgejo/forgejo:16
-    profiles: [apps, utils, all]
+    profiles: [apps, all]
     networks: 
       - forgejo_network
       - traefik_public
