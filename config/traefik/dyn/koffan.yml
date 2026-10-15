@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    koffan:
+      rule: Host(`koffan.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: koffan
+      middlewares: [sablier-koffan@file, startup-retry@file]
+  services:
+    koffan:
+      loadBalancer:
+        servers:
+          - url: http://koffan:8080/
+  middlewares:
+    sablier-koffan:
+      plugin:
+        sablier:
+          group: koffan
+          dynamic:
+            displayName: Koffan
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m

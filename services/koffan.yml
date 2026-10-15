@@ -1,0 +1,50 @@
+---
+services:
+  koffan:
+    profiles: [apps, utils, always, all]
+    image: ghcr.io/pansalut/koffan:v2.16.1
+    networks: 
+      - traefik_public
+    volumes:
+      - koffan_data:/data
+    # ports:
+    #   - 3003:8080
+    environment:
+      - TZ=${TZ:-Europe/Copenhagen}
+      - APP_PASSWORD=${KOFFAN_ADMIN_PASSWORD:-Set KOFFAN_ADMIN_PASSWORD in env, direnv or in DOCKHAND}
+      - MULTI_USER=true
+    labels:
+      - sablier.enable=true
+      - sablier.group=koffan
+      - homepage.group=Utilities
+      - homepage.name=Koffan
+      - homepage.icon=koffan.png
+      - homepage.href=https://koffan.${DOMAIN:-traefik.me}
+      - homepage.description=Shopping lists management with real-time synchronization between multiple devices.
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1024M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+networks:
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    attachable: true
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
+
+volumes:
+  koffan_data:
+
+
+
+#################################################
+# https://wiki.serversatho.me/koffan
+#################################################
