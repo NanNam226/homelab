@@ -1,0 +1,93 @@
+services:
+  adventurelog:
+    profiles: [apps, all]
+    image: ghcr.io/seanmorley15/adventurelog:latest
+    networks: [traefik_public, adventurelog_network]
+    restart: unless-stopped
+    volumes: [adventurelog_data/media:/code/media/]
+    ports:
+      - "8015:80"
+    environment:
+      PORT: "3000"
+      SITE_URL: http://192.168.1.100:8015
+      POSTGRES_PASSWORD: SuperSecretDBPassword
+      PGHOST: adventurelog_db
+      POSTGRES_DB: database
+      POSTGRES_USER: adventure
+    labels:
+      - sablier.enable=true
+      - sablier.group=adventurelog
+      # - traefik.enable=true
+      # - traefik.docker.network=traefik_public
+      # - traefik.http.routers.adventurelog.rule=Host(`photos.${DOMAIN:-traefik.me}`)
+      # - traefik.http.routers.adventurelog.entrypoints=websecure
+      # - traefik.http.services.adventurelog.loadbalancer.server.port=2283
+      - homepage.group=Media & Files
+      - homepage.name=adventurelog
+      - homepage.icon=adventurelog.png
+      - homepage.href=https://adventure.${DOMAIN:-traefik.me}
+      - homepage.description=Log and plan adventures
+    depends_on:
+      adventurelog_db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python3 -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:80/health')\""
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  adventurelog_db:
+    profiles: [apps, all]
+    image: postgis/postgis:16-3.5
+    networks: [adventurelog_network]
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: database
+      POSTGRES_USER: adventure
+      POSTGRES_PASSWORD: SuperSecretDBPassword
+    volumes:
+      - adventurelog_db_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adventure -d database"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+networks:
+  adventurelog_network:
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    attachable: true
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
+
+volumes:
+  adventurelog_db_data:
+  adventurelog_data:
