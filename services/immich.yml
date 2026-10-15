@@ -1,23 +1,37 @@
 ---
 services:
-  immich-postgres:
+  # Web UI/API
+  immich-server:
     profiles: [apps, all]
-    image: pgvector/pgvector:0.8.2-pg17
-    environment:
-      - POSTGRES_USER=${IMMICH_DB_USERNAME:-immich}
-      - POSTGRES_PASSWORD=${IMMICH_DB_PASSWORD:?Set IMMICH_DB_PASSWORD in .env, direnv,
-        or Dockhand}
-      - POSTGRES_DB=${IMMICH_DB_DATABASE_NAME:-immich}
-      - TZ=${TZ:-Europe/Copenhagen}
-    volumes: [immich_postgres_data:/var/lib/postgresql/data]
-    healthcheck:
-      test: [CMD-SHELL, pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    networks: [immich]
+    image: ghcr.io/immich-app/immich-server:v2.7.3
+    networks: [traefik_public, immich]
+    volumes: [immich_library:/usr/src/app/upload]
     restart: unless-stopped
+    command: [start.sh, immich]
+    environment:
+      - DB_HOSTNAME=immich-postgres
+      - DB_USERNAME=${IMMICH_DB_USERNAME:-immich}
+      - DB_PASSWORD=${IMMICH_DB_PASSWORD:?Set IMMICH_DB_PASSWORD in .env, direnv,
+        or Dockhand}
+      - DB_DATABASE_NAME=${IMMICH_DB_DATABASE_NAME:-immich}
+      - REDIS_HOSTNAME=redis
+      - IMMICH_WORKERS_INCLUDE=api
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_public
+      - traefik.http.routers.immich.rule=Host(`photos.${DOMAIN:-traefik.me}`)
+      - traefik.http.routers.immich.entrypoints=websecure
+      - traefik.http.services.immich.loadbalancer.server.port=2283
+      - homepage.group=Media & Files
+      - homepage.name=Immich
+      - homepage.icon=immich.png
+      - homepage.href=https://photos.${DOMAIN:-traefik.me}
+      - homepage.description=Family photo and video library
+    depends_on:
+      immich-postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -26,15 +40,68 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
-  immich-power-tools:
+
+  # Background workers
+  immich-microservices:
     profiles: [apps, all]
-    image: ghcr.io/immich-power-tools/immich-power-tools:latest
+    image: ghcr.io/immich-app/immich-server:latest
+    networks: [immich]
+    volumes: [immich_library:/usr/src/app/upload]
+    restart: unless-stopped
+    command: [start.sh, microservices]
+    environment:
+      - DB_HOSTNAME=immich-postgres
+      - DB_USERNAME=${IMMICH_DB_USERNAME:-immich}
+      - DB_PASSWORD=${IMMICH_DB_PASSWORD:?Generate a password using `openssl rand
+        -base64 32 2>/dev/null`}
+      - DB_DATABASE_NAME=${IMMICH_DB_DATABASE_NAME:-immich}
+      - REDIS_HOSTNAME=redis
+      - IMMICH_WORKERS_EXCLUDE=api
     depends_on:
       immich-postgres:
         condition: service_healthy
-      immich-server:
+      redis:
         condition: service_healthy
+    healthcheck:
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '1'
+    #       memory: 512M
+    #     reservations:
+    #       cpus: '0.5'
+    #       memory: 256M
+
+  # ML processing - always on
+  immich-machine-learning:
+    profiles: [apps, all]
+    image: ghcr.io/immich-app/immich-machine-learning:latest
+    networks: [immich]
+    volumes: [immich_machine_learning_cache:/cache]
+    restart: unless-stopped
+    environment: [REDIS_HOSTNAME=redis]
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  immich-power-tools:
+    profiles: [apps, all]
+    image: ghcr.io/immich-power-tools/immich-power-tools:latest
     networks: [traefik_public, immich]
+    volumes: [immich_power_tools_data:/app/data]
+    restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Copenhagen}
       - IMMICH_API_KEY=${IMMICH_API_KEY:-}
@@ -50,7 +117,6 @@ services:
       - AI_BASE_URL=${AI_BASE_URL:-https://api.openai.com/v1}
       - AI_MODEL=${AI_MODEL:-gpt-4o-mini}
       - POWER_TOOLS_ENDPOINT_URL=${POWER_TOOLS_ENDPOINT_URL:-https://immich-tools.${DOMAIN:-traefik.me}}
-    volumes: [immich_power_tools_data:/app/data]
     labels:
       - sablier.enable=true
       - sablier.group=immich-power-tools
@@ -59,7 +125,11 @@ services:
       - homepage.icon=immich.png
       - homepage.href=https://immich-tools.${DOMAIN:-traefik.me}
       - homepage.description=Extra utilities for your Immich library
-    restart: unless-stopped
+    depends_on:
+      immich-postgres:
+        condition: service_healthy
+      immich-server:
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -68,39 +138,25 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
-
-  # Web UI/API
-  immich-server:
+  
+  immich-postgres:
     profiles: [apps, all]
-    depends_on:
-      immich-postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    image: ghcr.io/immich-app/immich-server:v2.7.3
-    command: [start.sh, immich]
-    volumes: [immich_library:/usr/src/app/upload]
-    environment:
-      - DB_HOSTNAME=immich-postgres
-      - DB_USERNAME=${IMMICH_DB_USERNAME:-immich}
-      - DB_PASSWORD=${IMMICH_DB_PASSWORD:?Set IMMICH_DB_PASSWORD in .env, direnv,
-        or Dockhand}
-      - DB_DATABASE_NAME=${IMMICH_DB_DATABASE_NAME:-immich}
-      - REDIS_HOSTNAME=redis
-      - IMMICH_WORKERS_INCLUDE=api
-    networks: [traefik_public, immich]
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=traefik_public
-      - traefik.http.routers.immich.rule=Host(`photos.${DOMAIN:-traefik.me}`)
-      - traefik.http.routers.immich.entrypoints=websecure
-      - traefik.http.services.immich.loadbalancer.server.port=2283
-      - homepage.group=Media & Files
-      - homepage.name=Immich
-      - homepage.icon=immich.png
-      - homepage.href=https://photos.${DOMAIN:-traefik.me}
-      - homepage.description=Family photo and video library
+    image: pgvector/pgvector:0.8.2-pg17
+    networks: [immich]
+    volumes: [immich_postgres_data:/var/lib/postgresql/data]
     restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${IMMICH_DB_USERNAME:-immich}
+      - POSTGRES_PASSWORD=${IMMICH_DB_PASSWORD:?Set IMMICH_DB_PASSWORD in .env, direnv,
+        or Dockhand}
+      - POSTGRES_DB=${IMMICH_DB_DATABASE_NAME:-immich}
+      - TZ=${TZ:-Europe/Copenhagen}
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     deploy:
       resources:
         limits:
@@ -109,74 +165,19 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
-
-  # Background workers
-  immich-microservices:
-    profiles: [apps, all]
-    depends_on:
-      immich-postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    image: ghcr.io/immich-app/immich-server:v2.7.3
-    command: [start.sh, microservices]
-    volumes: [immich_library:/usr/src/app/upload]
-    environment:
-      - DB_HOSTNAME=immich-postgres
-      - DB_USERNAME=${IMMICH_DB_USERNAME:-immich}
-      - DB_PASSWORD=${IMMICH_DB_PASSWORD:?Generate a password using `openssl rand
-        -base64 32 2>/dev/null`}
-      - DB_DATABASE_NAME=${IMMICH_DB_DATABASE_NAME:-immich}
-      - REDIS_HOSTNAME=redis
-      - IMMICH_WORKERS_EXCLUDE=api
-    networks: [immich]
-    healthcheck:
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
-    restart: unless-stopped
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '1'
-    #       memory: 512M
-    #     reservations:
-    #       cpus: '0.5'
-    #       memory: 256M
-
-  # ML processing - always on
-  immich-machine-learning:
-    profiles: [apps, all]
-    depends_on:
-      redis:
-        condition: service_healthy
-    image: ghcr.io/immich-app/immich-machine-learning:v2.7.3
-    volumes: [immich_model_cache:/cache]
-    environment: [REDIS_HOSTNAME=redis]
-    networks: [immich]
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 4G
-        reservations:
-          cpus: '1'
-          memory: 2G
-
+  
   # Queue storage - Always on
   redis:
     profiles: [apps, all]
     image: redis:7.4.8-alpine3.21
-    volumes: [immich_redis:/data]
     networks: [immich]
+    volumes: [immich_redis:/data]
+    restart: unless-stopped
     healthcheck:
       test: [CMD, redis-cli, ping]
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
     deploy:
       resources:
         limits:
@@ -185,15 +186,25 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+
 networks:
   immich:
+    name: immich
+    attachable: true
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
   traefik_public:
     name: traefik_public
     driver: bridge
     attachable: true
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
+
 volumes:
   immich_library:
-  immich_postgres_data:
-  immich_model_cache:
-  immich_redis:
+  immich_machine_learning_cache:
   immich_power_tools_data:
+  immich_postgres_data:
+  immich_redis:
