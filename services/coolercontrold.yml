@@ -1,6 +1,6 @@
 ---
 services:
-  coolercontrold:    
+  coolercontrold:
     profiles: [apps, always, all]
     image: coolercontrol/coolercontrold
     networks: [traefik_public]
