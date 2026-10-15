@@ -1,0 +1,92 @@
+services:
+  attic:
+    profiles: [apps, utils, all]
+    image: ghcr.io/lmmendes/attic:latest
+    networks: [traefik_public, attic_network]
+    volumes: [attic_data:/data/uploads]
+    restart: unless-stopped
+    user: "568:568"
+    # ports: [8095:8080]
+    environment:
+      # - ATTIC_PORT=8080
+      - ATTIC_DATABASE_URL=postgres://attic_db:${DB_ATTIC_PASSWORD}@attic_db:5432/attic_db?sslmode=disable
+      - ATTIC_LOCAL_STORAGE_PATH=/data/uploads
+      - ATTIC_PUID=568
+      - ATTIC_PGID=568
+      - ATTIC_BASE_URL=http://attic_db:8095
+      - ATTIC_CORS_ORIGINS=http://attic_db:8095
+      - ATTIC_ADMIN_EMAIL=${ATTIC_ADMIN_EMAIL:-example@examplemail.selfhost}
+      - ATTIC_ADMIN_PASSWORD=${ATTIC_ADMIN_PASSWORD:?Set ATTIC_ADMIN_PASSWORD in .env, direnv, or Dockhand}
+      - ATTIC_SESSION_SECRET=${ATTIC_SESSION_SECRET:?Set ATTIC_SESSION_SECRET in .env, direnv, or Dockhand}
+      # # Optional import sources
+      # - ATTIC_GOOGLE_BOOKS_API_KEY=
+      # - ATTIC_TMDB_API_KEY=
+      # - ATTIC_BGG_API_KEY=
+      # - ATTIC_IGDB_CLIENT_ID=
+      # - ATTIC_IGDB_CLIENT_SECRET=
+    labels:
+      - sablier.enable=true
+      - sablier.group=attic
+      # - traefik.enable=true
+      # - traefik.docker.network=traefik_public
+      # - traefik.http.routers.attic.rule=Host(`attic.${DOMAIN:-traefik.me}`)
+      # - traefik.http.routers.attic.entrypoints=websecure
+      # - traefik.http.services.attic.loadbalancer.server.port=8080
+      - homepage.group=Utilities
+      - homepage.name=Attic
+      - homepage.icon=attic.png
+      - homepage.href=https://attic.${DOMAIN:-traefik.me}
+      - homepage.description=Self-hosted home inventory for everything you own.
+    depends_on:
+      attic_db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  attic_db:
+    profiles: [apps, all]
+    image: postgres:16-alpine
+    networks: [traefik_public, attic_network]
+    volumes: [attic_db:/var/lib/postgresql/data]
+    restart: unless-stopped
+    # user: "568:568"
+    environment:
+      - POSTGRES_USER=attic_db
+      - POSTGRES_PASSWORD=${DB_ATTIC_PASSWORD}
+      - POSTGRES_DB=attic_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U attic_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+networks:
+  attic_network:
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    attachable: true
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
+
+volumes:
+  attic_db:
+  attic_data:

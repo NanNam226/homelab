@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    attic:
+      rule: Host(`attic.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: attic
+      middlewares: [sablier-attic@file, startup-retry@file]
+  services:
+    attic:
+      loadBalancer:
+        servers:
+          - url: http://attic:8080/
+  middlewares:
+    sablier-attic:
+      plugin:
+        sablier:
+          group: attic
+          dynamic:
+            displayName: Attic
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m

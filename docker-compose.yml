@@ -29,6 +29,7 @@ include:
   # - services/forgejo.yml
   - services/actual-budget.yml
   - services/koffan.yml
+  - services/attic.yml
   - services/openwebui.yml
   - services/kokoro-tts.yml
   - services/miniflux.yml
