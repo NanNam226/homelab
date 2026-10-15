@@ -1,0 +1,154 @@
+---
+services:
+  compdesk_init:
+    profiles: [apps, utils, all]
+    image: ghcr.io/tahahydra/compdesk:0.9.0-beta.2
+    networks: [traefik_public, compdesk_net]
+    volumes:
+      - compdesk_config:/config
+      - compdesk_db:/pgdata-check:ro
+      - compdesk_uploads:/app/public/uploads
+      - compdesk_attachments:/app/storage/attachments
+    restart: "no"
+    user: root
+    security_opt:
+      - no-new-privileges:true
+    command: ["node", "scripts/config-init.mjs"]
+    environment:
+      COMPDESK_CONFIG_DIR: /config
+      COMPDESK_PGDATA_CHECK_DIR: /pgdata-check
+      COMPDESK_RUNTIME_UID: "568"
+      COMPDESK_RUNTIME_GID: "568"
+      COMPDESK_CHOWN_PATHS: "/config:/app/public/uploads:/app/storage/attachments"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1024M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  db:
+    profiles: [apps, utils, all]
+    image: postgres:16-alpine
+    networks: [compdesk_net]
+    volumes:
+      - compdesk_db:/var/lib/postgresql/data
+      - compdesk_config:/run/compdesk-config:ro
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    depends_on:
+      compdesk_init:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_USER: compdesk
+      POSTGRES_DB: compdesk
+      POSTGRES_PASSWORD: ${DB_COMPDESK_PASSWORD:-Set DB_COMPDESK_PASSWORD in env, direnv or in Dockhand.}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U compdesk -d compdesk"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    stop_grace_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1024M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  compdesk:
+    profiles: [apps, utils, all]
+    image: ghcr.io/tahahydra/compdesk:0.9.0-beta.2
+    networks: [traefik_public, compdesk_net]
+    volumes:
+      - compdesk_config:/config
+      - compdesk_uploads:/app/public/uploads
+      - compdesk_attachments:/app/storage/attachments
+    restart: unless-stopped
+    user: "568:568"
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      compdesk_init:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+    # ports:
+    #   - "3070:3000"
+    environment:
+      COMPDESK_CONFIG_DIR: /config
+      COMPDESK_DB_HOST: db
+      COMPDESK_DB_PORT: "5432"
+      # COMPDESK_PUBLISHED_PORT: "3070"
+      SETUP_PUBLIC_ORIGIN: https://compdesk.${DOMAIN:-traefik.me}
+      SETUP_TRUST_PROXY: "true"
+    labels:
+      - sablier.enable=true
+      - sablier.group=compdesk
+      - homepage.group=Utilities
+      - homepage.name=compdesk
+      - homepage.icon=compdesk.png
+      - homepage.href=https://compdesk.${DOMAIN:-traefik.me}
+      - homepage.description=Self-hosted helpdesk.
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://compdesk:3000/api/health/live').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+    stop_grace_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1024M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+networks:
+  compdesk_net:
+    name: compdesk_net
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
+  traefik_public:
+    name: traefik_public
+    driver: bridge
+    attachable: true
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
+
+volumes:
+  compdesk_config:
+  compdesk_db:
+  compdesk_uploads:
+  compdesk_attachments:
+
+
+
+
+#################################################
+# SOURCE
+#https://wiki.serversatho.me/en/compdesk
+#################################################
+# Error - postresql credentials cannot be resolved
+# Maybe because I used password instead of password-file for postresql
+#################################################

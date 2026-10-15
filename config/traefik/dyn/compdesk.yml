@@ -1,0 +1,25 @@
+---
+http:
+  routers:
+    compdesk:
+      rule: Host(`compdesk.{{ env "DOMAIN" }}`)
+      entrypoints: [websecure]
+      service: compdesk
+      middlewares: [sablier-compdesk@file, startup-retry@file]
+  services:
+    compdesk:
+      loadBalancer:
+        servers:
+          - url: http://compdesk:3000/
+  middlewares:
+    sablier-compdesk:
+      plugin:
+        sablier:
+          group: compdesk
+          dynamic:
+            displayName: Compdesk
+            refreshFrequency: 2s
+            showDetails: 'true'
+            theme: ghost
+          sablierUrl: http://sablier:10000
+          sessionDuration: 30m

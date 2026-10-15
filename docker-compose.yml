@@ -30,6 +30,7 @@ include:
   - services/actual-budget.yml
   - services/koffan.yml
   - services/attic.yml
+  - services/compdesk.yml
   - services/openwebui.yml
   - services/kokoro-tts.yml
   - services/miniflux.yml
