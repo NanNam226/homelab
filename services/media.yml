@@ -39,7 +39,7 @@ services:
     restart: unless-stopped
   jellyfin:
     profiles: [apps, media, always, all]
-    image: linuxserver/jellyfin:latest
+    image: linuxserver/jellyfin:12.3ubu2604-ls56
     networks: [traefik_public, media]
     devices:
       - /dev/dri/:/dev/dri/
