@@ -181,8 +181,7 @@ services:
       - homepage.description=Track, download, and organize movies automatically
   flaresolverr:
     profiles: [apps, media, all]
-    # DockerHub mirror flaresolverr/flaresolverr:latest
-    image: ghcr.io/flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:v3.5.2
     network_mode: service:gluetun
     depends_on: [gluetun]
     environment:
