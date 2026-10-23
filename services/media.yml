@@ -220,7 +220,7 @@ services:
     restart: unless-stopped
   bazarr:
     profiles: [apps, media, all]
-    image: lscr.io/linuxserver/bazarr:latest
+    image: lscr.io/linuxserver/bazarr:v1.6.2-ls369
     networks: [traefik_public, media]
     environment:
       - PUID=${PUID:-1000}
