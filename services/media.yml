@@ -203,7 +203,7 @@ services:
     restart: unless-stopped
   prowlarr:
     profiles: [apps, media, all]
-    image: lscr.io/linuxserver/prowlarr:2.5.2
+    image: lscr.io/linuxserver/prowlarr:2.6.5.5623-ls165
     networks: [traefik_public, media]
     environment: [PUID=1000, PGID=1000, TZ=Etc/UTC]
     labels:
