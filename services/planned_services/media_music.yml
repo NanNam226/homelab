@@ -1,0 +1,49 @@
+---
+services:
+  lollypop:
+    image: lscr.io/linuxserver/lollypop:latest
+    container_name: lollypop
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/config:/config
+    ports:
+      - 3000:3000
+      - 3001:3001
+    shm_size: "1gb"
+    restart: unless-stopped
+
+
+#############################
+# Music player
+############################
+
+
+
+
+
+
+
+
+  beets:
+    image: lscr.io/linuxserver/beets:latest
+    container_name: beets
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/beets/config:/config
+      - /path/to/music/library:/music
+      - /path/to/ingest:/downloads
+    ports:
+      - 8337:8337
+    restart: unless-stopped
+
+
+#############################
+# Music library manager
+############################
+
