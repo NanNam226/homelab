@@ -2,7 +2,7 @@
 services:
   traefik:
     profiles: [infra, all]
-    image: traefik:3.7.10
+    image: traefik:3.7.16
     ports: 
       - 80:80
       - 443:443
@@ -18,6 +18,7 @@ services:
     volumes:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_plugins:/plugins-storage
       - ${DOCKHAND_STACK_DIR:-..}/config/traefik/dyn:/etc/traefik/dyn:ro
       - ${DOCKHAND_STACK_DIR:-..}/config/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
     networks: [traefik_public]
@@ -61,7 +62,7 @@ services:
           memory: 256M
   sablier:
     profiles: [infra, all]
-    image: sablierapp/sablier:1.8.1
+    image: sablierapp/sablier:1.18.0
     command: [start, --provider.name=docker]
     depends_on:
       traefik:
@@ -184,3 +185,4 @@ volumes:
   adguard_conf:
   letsencrypt:
   netalertx_data:
+  traefik_plugins:
